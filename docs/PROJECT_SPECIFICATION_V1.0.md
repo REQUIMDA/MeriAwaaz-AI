@@ -456,32 +456,58 @@ Output fields:
 ## 12. Supervisor Workflow
 
 ### Workflow Rules
-- For text input, skip speech processing and proceed directly to parsing.
-- For image input, run image understanding before issue extraction.
-- For dashboard refresh, do not re-run citizen intake. Instead run: Demand → Fusion → Policy → Explainability using existing stored submissions. New submissions may have changed cluster sizes, so demand must be re-evaluated.
+- The supervisor runs **once** and makes **one** routing decision based on `input_type`. After that, the pipeline is fixed and linear — the supervisor is never revisited.
+- For text input: supervisor → citizen_intelligence → demand → fusion → policy → explainability → END
+- For voice input: supervisor → speech_processing → citizen_intelligence → demand → fusion → policy → explainability → END
+- For image input: supervisor → vision_processing → citizen_intelligence → demand → fusion → policy → explainability → END
+- For dashboard refresh: supervisor → demand → fusion → policy → explainability → END (skips citizen intake; re-evaluates clusters from stored submissions)
+- **Persistence is not a graph node.** After `run_workflow()` returns, the FastAPI endpoint writes all results to SQLite and ChromaDB. Agents are pure transformers — they read and update shared state only.
 
 ### Supervisor Decision Logic
 ```mermaid
 flowchart TD
-    A[Receive Request] --> B{Input Type}
-    B -->|Text| C[Citizen Intelligence]
-    B -->|Voice| D[Speech Processing]
-    B -->|Image| E[Vision Processing]
-    B -->|Dashboard Refresh| F[Demand Intelligence]
-    D --> C
-    E --> C
-    C --> G[Demand Intelligence]
-    G --> H[Knowledge Fusion]
-    H --> I[Policy Recommendation]
-    I --> J[Explainability]
-    F --> I
-    J --> K[Persist & Update Dashboard]
+    A([START]) --> SUP["Supervisor
+    pure Python · no LLM
+    reads input_type"]
+
+    SUP -->|text| CIT
+    SUP -->|voice| SPE["Speech Processing
+    P2"]
+    SUP -->|image| VIS["Vision Processing
+    P2"]
+    SUP -->|dashboard_refresh| DEM
+
+    SPE --> CIT
+    VIS --> CIT
+
+    CIT["Citizen Intelligence
+    LLM → ParsedIssue"]
+    CIT --> DEM
+
+    DEM["Demand Intelligence
+    ChromaDB + LLM → cluster"]
+    DEM --> FUS
+
+    FUS["Knowledge Fusion
+    dict lookup + LLM → context"]
+    FUS --> POL
+
+    POL["Policy Recommendation
+    pure Python scoring → score"]
+    POL --> EXP
+
+    EXP["Explainability
+    LLM → evidence + summary"]
+    EXP --> DONE([END])
+
+    DONE -->|"FastAPI persists\nstate to SQLite + ChromaDB"| DB[(Storage)]
 ```
 
 ### Routing Policy
-- Text and voice are routed through the full intake path.
-- Image input routes to vision understanding and then into the full intake path.
-- Dashboard refresh is a lightweight pipeline that recomputes recommendations and refreshes evidence.
+- Supervisor fires exactly once per request. It sets `state["route"]` and exits.
+- All downstream edges are static — no further conditional routing.
+- Speech and vision processing are P2 (skip if behind schedule). For the demo, text is the primary path.
+- Dashboard refresh enters at demand_intelligence. It never re-runs citizen intake.
 
 ---
 

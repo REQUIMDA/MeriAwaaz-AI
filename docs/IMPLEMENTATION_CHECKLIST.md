@@ -836,25 +836,42 @@ Run these every morning before starting new work:
   - **Acceptance Criteria:** Module imports without error. `StateGraph` is instantiated without exceptions.
 
 ### 13.2 Define Graph Nodes (Stubs)
-- [ ] **Task:** In `workflow.py`, add six graph nodes as stub functions that each return the state unchanged with a print statement: `supervisor_node`, `citizen_intelligence_node`, `demand_intelligence_node`, `knowledge_fusion_node`, `policy_recommendation_node`, `explainability_node`.
+- [ ] **Task:** In `workflow.py`, add stub functions for all nodes. Each returns state unchanged with a print statement:
+  - **P0:** `supervisor_node`, `citizen_intelligence_node`, `demand_intelligence_node`, `knowledge_fusion_node`, `policy_recommendation_node`, `explainability_node`
+  - **P2:** `speech_processing_node`, `vision_processing_node` (stubs only — do not implement until P0 is complete)
   - **Owner:** TL
   - **Dependencies:** 13.1
   - **Estimated Time:** 20 min
-  - **Acceptance Criteria:** All six nodes are added to the graph via `graph.add_node(...)`. No import errors.
+  - **Acceptance Criteria:** All P0 nodes added via `graph.add_node(...)`. No import errors.
 
 ### 13.3 Define Graph Edges
-- [ ] **Task:** Wire the graph edges in `workflow.py`:
-  - `START → supervisor`
-  - `supervisor → citizen_intelligence`
-  - `citizen_intelligence → demand_intelligence`
-  - `demand_intelligence → knowledge_fusion`
-  - `knowledge_fusion → policy_recommendation`
-  - `policy_recommendation → explainability`
-  - `explainability → END`
+- [ ] **Task:** Wire the graph edges in `workflow.py`. The supervisor fires **once** via a single conditional edge. All downstream edges are static — no further routing:
+  ```python
+  # One conditional edge — the only routing decision in the entire graph
+  def route_fn(state):
+      return state["route"]  # set by supervisor_node
+
+  graph.add_conditional_edges("supervisor", route_fn, {
+      "citizen_intelligence": "citizen_intelligence",
+      "speech_processing":    "speech_processing",     # P2
+      "vision_processing":    "vision_processing",      # P2
+      "demand_intelligence":  "demand_intelligence",    # dashboard_refresh path
+  })
+
+  # Fixed pipeline — no decisions, no supervisor re-involvement
+  graph.add_edge(START,                  "supervisor")
+  graph.add_edge("speech_processing",    "citizen_intelligence")   # P2
+  graph.add_edge("vision_processing",    "citizen_intelligence")   # P2
+  graph.add_edge("citizen_intelligence", "demand_intelligence")
+  graph.add_edge("demand_intelligence",  "knowledge_fusion")
+  graph.add_edge("knowledge_fusion",     "policy_recommendation")
+  graph.add_edge("policy_recommendation","explainability")
+  graph.add_edge("explainability",        END)
+  ```
   - **Owner:** TL
   - **Dependencies:** 13.2
   - **Estimated Time:** 20 min
-  - **Acceptance Criteria:** `graph.compile()` executes without errors. The compiled graph object can be called with a test state.
+  - **Acceptance Criteria:** `graph.compile()` executes without errors. Text path visits 6 nodes (supervisor + 5 pipeline). Dashboard refresh path visits 5 nodes (supervisor + 4 pipeline, skips citizen).
 
 ### 13.4 Create run_workflow Function
 - [ ] **Task:** In `workflow.py`, implement `run_workflow(submission_id, input_type, raw_text) -> dict` that initializes the state, invokes the compiled graph, and returns the final state.
@@ -864,11 +881,23 @@ Run these every morning before starting new work:
   - **Acceptance Criteria:** Calling `run_workflow("sub_001", "text", "broken roads")` returns a dict with all state keys. All stub nodes execute (visible via print statements).
 
 ### 13.5 Integrate run_workflow into POST /api/submissions
-- [ ] **Task:** Replace the stub call in `POST /api/submissions` with an actual call to `run_workflow(...)`. Handle exceptions: if the workflow raises, return HTTP 500 with `{"error": "agent_failure"}`.
+- [ ] **Task:** Replace the stub call in `POST /api/submissions` with:
+  ```python
+  state = run_workflow(submission_id, input_type, raw_text)
+
+  # All persistence happens HERE in the service layer — not inside agent nodes
+  db.update_submission(submission_id, state["parsed_issue"])
+  db.update_submission_cluster(submission_id, state["cluster"]["name"])
+  db.upsert_cluster(state["cluster"])
+  db.insert_recommendation(submission_id, state["recommendation"])
+  db.update_project_score(state["recommendation"]["project_id"], state["recommendation"]["priority_score"])
+  chroma.add_document(submission_id, state["parsed_issue"]["summary"], metadata)
+  ```
+  Wrap the entire block in try/except. On any exception return HTTP 500 `{"error": "agent_failure"}`.
   - **Owner:** TL + M3
-  - **Dependencies:** 13.4, 12.2
-  - **Estimated Time:** 20 min
-  - **Acceptance Criteria:** A POST request to `/api/submissions` triggers the full (stub) workflow. Terminal shows all six node print statements. DB row is created.
+  - **Dependencies:** 13.4, 12.2, 7.8, 8.3
+  - **Estimated Time:** 30 min
+  - **Acceptance Criteria:** POST triggers workflow. All six DB/Chroma writes execute after `run_workflow` returns. Agents themselves contain zero `db.*` or `chroma.*` calls. On exception, 500 is returned and no partial writes remain.
 
 **Section 13 — Definition of Done:**
 - [ ] LangGraph workflow compiles without errors
@@ -938,11 +967,11 @@ Run these every morning before starting new work:
   - **Acceptance Criteria:** Prompt tested manually. Returns valid JSON for: "Roads are broken near the school in Ward 12". Returns valid JSON for a vague input with low confidence.
 
 ### 15.2 Implement Citizen Intelligence Node
-- [ ] **Task:** Replace the `citizen_intelligence_node` stub. Load `citizen_prompt.md`. Call OpenAI with `raw_text` and `location_hint`. Parse response into `ParsedIssue`. Update `state["parsed_issue"]`. Update the `submissions` row in SQLite with extracted fields.
+- [ ] **Task:** Replace the `citizen_intelligence_node` stub. Load `citizen_prompt.md`. Call OpenAI with `raw_text` and `location_hint`. Parse response into `ParsedIssue`. Update `state["parsed_issue"]` only. **No DB writes inside this node** — persistence happens in the FastAPI layer after `run_workflow()` returns (Section 13.5).
   - **Owner:** TL
-  - **Dependencies:** 15.1, 13.2, 7.8, 10.2
-  - **Estimated Time:** 35 min
-  - **Acceptance Criteria:** After running the workflow, `state["parsed_issue"]` is a populated dict. The `submissions` row has `issue_category`, `urgency`, `summary`, `confidence` filled in.
+  - **Dependencies:** 15.1, 13.2, 10.2
+  - **Estimated Time:** 30 min
+  - **Acceptance Criteria:** After running the workflow, `state["parsed_issue"]` is a populated dict with all five fields. Zero `db.*` calls inside this function.
 
 ### 15.3 Add Fallback for Missing Location
 - [ ] **Task:** In the citizen intelligence node, if `location` in the parsed output is empty or null, set it to `location_hint` from the state. If `location_hint` is also empty, set it to `"Constituency"` as the default.
@@ -952,8 +981,8 @@ Run these every morning before starting new work:
   - **Acceptance Criteria:** Submitting text with no location and no location hint results in `location = "Constituency"` in `parsed_issue`. No KeyError.
 
 **Section 15 — Definition of Done:**
-- [ ] Citizen prompt is tested and returns valid JSON
-- [ ] Node updates both state and SQLite
+- [ ] Citizen prompt returns valid JSON
+- [ ] Node updates `state["parsed_issue"]` only — no DB writes
 - [ ] Location fallback handles all edge cases
 
 ---
@@ -972,24 +1001,16 @@ Run these every morning before starting new work:
   - **Acceptance Criteria:** Prompt tested manually with 3 similar road submissions. Returns sensible cluster name like "Road Infrastructure Demand".
 
 ### 16.2 Implement Demand Intelligence Node
-- [ ] **Task:** Replace the `demand_intelligence_node` stub. Call `query_similar(parsed_issue["summary"])` to get top 3 similar submissions. Call OpenAI with the similar texts and the current submission to identify the cluster. Update `state["cluster"]`. Save/update `clusters` table in SQLite.
+- [ ] **Task:** Replace the `demand_intelligence_node` stub. Call `query_similar(parsed_issue["summary"])` to get top 3 similar submissions. Call OpenAI with the similar texts to identify the cluster. Update `state["cluster"]` only. **No DB or ChromaDB writes inside this node** — those happen in 13.5.
   - **Owner:** TL + M4
-  - **Dependencies:** 16.1, 8.4, 13.2, 7.8
-  - **Estimated Time:** 35 min
-  - **Acceptance Criteria:** `state["cluster"]` is populated after the node runs. `clusters` table has a row. ChromaDB query returns at least 1 result when demo data is loaded.
-
-### 16.3 Add New Submission to ChromaDB
-- [ ] **Task:** At the end of the demand intelligence node, call `add_document(submission_id, summary, metadata)` to store the new submission in ChromaDB for future similarity queries.
-  - **Owner:** M4
-  - **Dependencies:** 16.2, 8.3
-  - **Estimated Time:** 15 min
-  - **Acceptance Criteria:** After processing, `collection.count()` increments by 1. The new submission can be retrieved in future similarity queries.
+  - **Dependencies:** 16.1, 8.4, 13.2
+  - **Estimated Time:** 30 min
+  - **Acceptance Criteria:** `state["cluster"]` is populated after the node runs. ChromaDB query returns at least 1 result when demo data is loaded. Zero `db.*` or `chroma.*` calls inside this function.
 
 **Section 16 — Definition of Done:**
 - [ ] Demand prompt returns valid cluster JSON
 - [ ] Node runs ChromaDB query and LLM call
-- [ ] New submission is added to ChromaDB
-- [ ] Cluster is saved to SQLite
+- [ ] `state["cluster"]` is populated — no DB writes inside the node
 
 ---
 
@@ -1057,17 +1078,16 @@ Run these every morning before starting new work:
   - **Acceptance Criteria:** Same inputs always return the same output. Score never exceeds 1.0. High cluster + poor infrastructure + large population + low cost produces score > 0.7.
 
 ### 18.3 Implement Policy Recommendation Node
-- [ ] **Task:** Replace the `policy_recommendation_node` stub. Fetch all projects from SQLite. For each project, compute `priority_score` using `compute_priority_score` with normalized inputs derived from the cluster, knowledge context, and project data. Select the top-scoring project. Update `state["recommendation"]` with `project_id`, `priority_score`, `confidence`. Save a row to the `recommendations` table (no `reason` — that is on-demand). No LLM call in this node.
+- [ ] **Task:** Replace the `policy_recommendation_node` stub. Read `get_all_projects()` from SQLite (read-only — no write). For each project, compute `priority_score` using normalized inputs from `state["cluster"]`, `state["knowledge_context"]`, and the project's own data. Select the top-scoring project. Update `state["recommendation"]` with `project_id`, `priority_score`, `confidence`. **No DB writes inside this node** — persistence happens in 13.5. No LLM call.
   - **Owner:** TL + M4
   - **Dependencies:** 18.1, 18.2, 7.8, 13.2
-  - **Estimated Time:** 35 min
-  - **Acceptance Criteria:** `state["recommendation"]` has `project_id`, `priority_score`, `confidence`. Score matches `compute_priority_score` output. Row inserted into `recommendations` table. No OpenAI call occurs in this node.
+  - **Estimated Time:** 30 min
+  - **Acceptance Criteria:** `state["recommendation"]` has `project_id`, `priority_score`, `confidence`. Score matches `compute_priority_score` output. Zero `db.*` write calls inside this function. No OpenAI call occurs in this node.
 
 **Section 18 — Definition of Done:**
 - [ ] Scoring function is deterministic, uses spec's 4-component formula, capped at 1.0
-- [ ] Policy node selects top project using score only — no LLM
-- [ ] `priority_score` and `confidence` saved to `recommendations` table
-- [ ] No `reason` or `evidence` stored at this stage
+- [ ] Policy node selects top project using score only — no LLM, no DB writes
+- [ ] `state["recommendation"]` is populated with score + confidence
 
 ---
 
@@ -1085,32 +1105,23 @@ Run these every morning before starting new work:
   - **Acceptance Criteria:** Tested manually. Returns exactly 3 bullets. Bullets are factual (referencing cluster size, ward data, project cost). Summary is one sentence.
 
 ### 19.2 Implement Explainability Node
-- [ ] **Task:** Replace the `explainability_node` stub. Call OpenAI with the full recommendation context (project, cluster, knowledge context, score). Parse the response. Update `state["explanation"]` with `evidence` and `summary`. **Do NOT write `reason` or `evidence` to the `recommendations` table** — these are kept in state only and returned to the frontend in the submission result. The dashboard reads `priority_score` from DB; it only calls explainability when a user clicks a project card.
+- [ ] **Task:** Replace the `explainability_node` stub. Call OpenAI with the full recommendation context (project, cluster, knowledge context, score). Parse the response. Update `state["explanation"]` with `evidence` and `summary`. **Zero DB writes inside this node.** All persistence (including `update_project_score`) happens in the FastAPI layer (Section 13.5) after `run_workflow()` returns.
   - **Owner:** TL
-  - **Dependencies:** 19.1, 13.2, 7.8
-  - **Estimated Time:** 30 min
-  - **Acceptance Criteria:** `state["explanation"]["evidence"]` is a list of 3 strings. `state["explanation"]["summary"]` is a non-empty string. No additional columns written to `recommendations` table.
+  - **Dependencies:** 19.1, 13.2
+  - **Estimated Time:** 25 min
+  - **Acceptance Criteria:** `state["explanation"]["evidence"]` is a list of 3 strings. `state["explanation"]["summary"]` is a non-empty string. Zero `db.*` calls inside this function.
 
-### 19.3 Update projects Table with Latest Score
-- [ ] **Task:** At the end of the explainability node, call `UPDATE projects SET priority_score = ?, confidence = ? WHERE id = ?` for the recommended project. This ensures the dashboard always shows the most recently computed score.
-  - **Owner:** TL
-  - **Dependencies:** 19.2, 7.8
-  - **Estimated Time:** 15 min
-  - **Acceptance Criteria:** After a full pipeline run, `GET /api/dashboard` returns the updated `priority_score` for the recommended project. The DB update does not affect other projects' scores.
-
-### 19.4 Create On-Demand Explainability Endpoint
-- [ ] **Task:** Add `GET /api/explain/{project_id}` to the dashboard router. When called, fetch the project + its latest recommendation from SQLite, call `run_explainability(project_id)` (a standalone function, not the full workflow), and return `{"evidence": [...], "summary": str, "reason": str}`. This is called when the user clicks a project card in the dashboard.
+### 19.3 Create On-Demand Explainability Endpoint
+- [ ] **Task:** Add `GET /api/explain/{project_id}` to the dashboard router. Fetches the project + its latest recommendation row from SQLite. Calls a standalone `explain(project, recommendation) -> dict` helper (not the full workflow) using `explainability_prompt.md`. Returns `{"evidence": [...], "summary": str, "reason": str}`. Called only when the user clicks a project card — never on dashboard load.
   - **Owner:** M3 + TL
-  - **Dependencies:** 19.2, 12.4
+  - **Dependencies:** 19.2, 12.4, 7.8
   - **Estimated Time:** 30 min
-  - **Acceptance Criteria:** `GET /api/explain/proj_001` returns a valid JSON with evidence and summary. Response time < 5s. Called only on click — not on dashboard load.
+  - **Acceptance Criteria:** `GET /api/explain/proj_001` returns valid JSON with `evidence` and `summary`. Response time < 5s. Dashboard page does not call this endpoint automatically on load.
 
 **Section 19 — Definition of Done:**
-- [ ] Explainability prompt returns exactly 3 evidence bullets
-- [ ] Node updates state only — does NOT write reason/evidence to DB
-- [ ] Project `priority_score` is updated in the `projects` table
-- [ ] On-demand `/api/explain/{project_id}` endpoint works and is called from the Evidence Panel
-- [ ] Full pipeline runs end-to-end from POST to final state
+- [ ] Explainability node updates `state["explanation"]` only — zero DB writes inside the node
+- [ ] On-demand `/api/explain/{project_id}` endpoint returns evidence + summary + reason
+- [ ] Full pipeline runs end-to-end with zero DB side-effects inside any agent node
 
 ---
 
