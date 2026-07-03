@@ -287,7 +287,7 @@ source: TEXT
 text: TEXT
 location_hint: TEXT
 issue_category: TEXT
-urgency: TEXT
+urgency: TEXT   #           REMOOVEEEE DONT AADD
 summary: TEXT
 confidence: REAL
 cluster_id: TEXT
