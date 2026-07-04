@@ -8,8 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
-if not os.getenv("OPENAI_API_KEY"):
-    print("ERROR: OPENAI_API_KEY is not set. Add it to backend/.env before starting.")
+if not os.getenv("GEMINI_API_KEY"):
+    print("ERROR: GEMINI_API_KEY is not set. Add it to backend/.env before starting.")
     sys.exit(1)
 
 from app.api.health import router as health_router
