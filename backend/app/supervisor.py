@@ -1,40 +1,42 @@
+from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph_supervisor import create_supervisor
-from app.core.llm import get_model
 
-SUPERVISOR_PROMPT = """
-You are the routing supervisor for MeriAwaaz AI, a citizen grievance intelligence system.
-
-Your ONLY job is to make ONE handoff decision based on what the user sends you.
-Never answer the user directly. Always hand off immediately.
-
-Routing rules:
-- If the input is plain text describing a civic problem, grievance, or need → hand off to citizen_intelligence_agent
-- If the input explicitly says "dashboard refresh" or asks to re-rank/re-evaluate existing data → hand off to demand_intelligence_agent
-- For any other input, default to citizen_intelligence_agent
-
-Make exactly one handoff. Do not chain multiple agents. Do not respond to the user yourself.
-"""
+from app.schemas.models import AgentState
+from app.agents import (
+    citizen_intelligence_agent,
+    demand_intelligence_agent,
+    knowledge_fusion_agent,
+    policy_recommendation_agent,
+    explainability_agent,
+)
 
 
-def build_workflow(agents: list, checkpointer=None):
-    """Build and compile the supervisor workflow with the given list of agents.
+def route_intake(state: AgentState) -> str:
+    """Deterministic — input_type is already known, no LLM call needed."""
+    return {
+        "voice": "speech_processing_agent",
+        "image": "vision_processing_agent",
+        "dashboard_refresh": "demand_intelligence_agent",
+    }.get(state.input_type, "citizen_intelligence_agent")  # default: text
 
-    Args:
-        agents: list of compiled LangGraph agent graphs to supervise
-        checkpointer: optional LangGraph checkpointer (defaults to MemorySaver)
 
-    Returns:
-        Compiled LangGraph graph ready for graph.invoke()
-    """
-    if checkpointer is None:
-        checkpointer = MemorySaver()
+def build_workflow(checkpointer=None):
+    graph = StateGraph(AgentState)
 
-    workflow = create_supervisor(
-        agents,
-        model=get_model(),
-        prompt=SUPERVISOR_PROMPT,
-        output_mode="last_message",
-    )
+    graph.add_node("citizen_intelligence_agent", citizen_intelligence_agent.run)
+    graph.add_node("demand_intelligence_agent", demand_intelligence_agent.run)
+    graph.add_node("knowledge_fusion_agent", knowledge_fusion_agent.run)
+    graph.add_node("policy_recommendation_agent", policy_recommendation_agent.run)
+    graph.add_node("explainability_agent", explainability_agent.run)
 
-    return workflow.compile(checkpointer=checkpointer)
+    graph.add_conditional_edges(START, route_intake)
+    # P2 voice/vision nodes transcribe/describe then hand off to citizen intelligence
+    for intake_node in ["speech_processing_agent", "vision_processing_agent"]:
+        graph.add_edge(intake_node, "citizen_intelligence_agent")
+    graph.add_edge("citizen_intelligence_agent", "demand_intelligence_agent")
+    graph.add_edge("demand_intelligence_agent", "knowledge_fusion_agent")
+    graph.add_edge("knowledge_fusion_agent", "policy_recommendation_agent")
+    graph.add_edge("policy_recommendation_agent", "explainability_agent")
+    graph.add_edge("explainability_agent", END)
+
+    return graph.compile(checkpointer=checkpointer or MemorySaver())

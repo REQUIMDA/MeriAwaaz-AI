@@ -88,7 +88,7 @@ class Recommendation(BaseModel):
 
 class AgentState(BaseModel):
     submission_id: str
-    input_type: Literal["text", "voice", "photo", "dashboard_refresh"]
+    input_type: Literal["text", "voice", "image", "dashboard_refresh"]
     raw_text: str = ""
     media_file_path: Optional[str] = None
 
