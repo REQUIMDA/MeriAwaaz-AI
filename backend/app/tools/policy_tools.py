@@ -11,10 +11,10 @@ def compute_priority_score(
     """Compute the deterministic priority score for a development project.
 
     Formula (fixed weights — LLM never changes these):
-        score = 0.40 * citizen_demand
-              + 0.30 * infrastructure_gap
-              + 0.20 * population_impact
-              + 0.10 * cost_feasibility
+        score = 40 * citizen_demand
+              + 30 * infrastructure_gap
+              + 20 * population_impact
+              + 10 * cost_feasibility
 
     All inputs must be normalised floats between 0.0 and 1.0.
 
@@ -28,18 +28,18 @@ def compute_priority_score(
         dict with keys: priority_score (float), breakdown (dict of weighted components)
     """
     score = (
-        0.40 * citizen_demand
-        + 0.30 * infrastructure_gap
-        + 0.20 * population_impact
-        + 0.10 * cost_feasibility
+        40 * citizen_demand
+        + 30 * infrastructure_gap
+        + 20 * population_impact
+        + 10 * cost_feasibility
     )
     return {
         "priority_score": round(score, 4),
         "breakdown": {
-            "citizen_demand": round(0.40 * citizen_demand, 4),
-            "infrastructure_gap": round(0.30 * infrastructure_gap, 4),
-            "population_impact": round(0.20 * population_impact, 4),
-            "cost_feasibility": round(0.10 * cost_feasibility, 4),
+            "citizen_demand": round(40 * citizen_demand, 4),
+            "infrastructure_gap": round(30 * infrastructure_gap, 4),
+            "population_impact": round(20 * population_impact, 4),
+            "cost_feasibility": round(10 * cost_feasibility, 4),
         },
     }
 

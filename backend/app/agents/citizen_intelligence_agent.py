@@ -24,3 +24,4 @@ citizen_intelligence_agent = create_react_agent(
     prompt=SYSTEM_PROMPT,
     name="citizen_intelligence_agent",
 )
+    
