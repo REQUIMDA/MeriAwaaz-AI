@@ -165,6 +165,23 @@ def count_submissions_by_ward() -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def count_all_submissions() -> int:
+    conn = _connect()
+    row = conn.execute("SELECT COUNT(*) as total FROM submissions").fetchone()
+    conn.close()
+    return row["total"] if row else 0
+
+
+def get_last_updated() -> str | None:
+    conn = _connect()
+    row = conn.execute(
+        "SELECT MAX(last_updated) as last_updated FROM recommendations"
+    ).fetchone()
+    conn.close()
+    result = dict(row) if row else None
+    return result.get("last_updated") if result else None
+
+
 def log_agent(submission_id: str, agent_name: str, status: str, duration_ms: int) -> None:
     conn = _connect()
     conn.execute("""

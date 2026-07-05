@@ -2,6 +2,8 @@ from typing import List
 
 from pydantic import BaseModel
 
+from app.schemas.models import ScoreBreakdown
+
 
 class HeatmapPoint(BaseModel):
     ward: str
@@ -15,9 +17,8 @@ class ProjectCard(BaseModel):
     title: str
     category: str
     priority_score: float
-    confidence: float
-    reason: str
-    evidence: List[str]
+    breakdown: ScoreBreakdown
+    is_existing_plan_project: bool
 
 
 class DashboardData(BaseModel):

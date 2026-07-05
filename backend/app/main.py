@@ -12,7 +12,15 @@ if not os.getenv("GEMINI_API_KEY"):
     print("ERROR: GEMINI_API_KEY is not set. Add it to backend/.env before starting.")
     sys.exit(1)
 
+from pathlib import Path
+
 from app.api.health import router as health_router
+from app.api.submissions import router as submissions_router
+from app.api.recommendations import router as recommendations_router
+from app.api.explain import router as explain_router
+from app.api.dashboard import router as dashboard_router
+from app.services.database import init_db
+from app.services.store import STORE
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -38,7 +46,19 @@ async def log_requests(request: Request, call_next):
     return response
 
 
+@app.on_event("startup")
+def on_startup():
+    init_db()
+    plans_path = str(Path(__file__).parent / "data" / "local_plans.json")
+    STORE.load_local_plans(plans_path)
+    logger.info("Startup complete.")
+
+
 app.include_router(health_router)
+app.include_router(submissions_router)
+app.include_router(recommendations_router)
+app.include_router(explain_router)
+app.include_router(dashboard_router)
 
 
 @app.get("/")
