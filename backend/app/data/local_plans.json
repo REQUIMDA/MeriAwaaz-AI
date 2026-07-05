@@ -1,0 +1,74 @@
+[
+  {
+    "plan_id": "plan_001",
+    "category": "Education",
+    "location": {"village": "Rampur", "block": "Sadar", "district": "Nagpur"},
+    "title": "Additional classroom block - Rampur Govt Primary School",
+    "estimated_cost_inr": 3500000,
+    "estimated_beneficiaries": 210,
+    "source": "mplads_pattern_handbuilt"
+  },
+  {
+    "plan_id": "plan_002",
+    "category": "Healthcare",
+    "location": {"village": "Kesarpur", "block": "North", "district": "Nagpur"},
+    "title": "Upgrade of Primary Health Sub-Centre - Kesarpur",
+    "estimated_cost_inr": 1800000,
+    "estimated_beneficiaries": 1450,
+    "source": "mplads_pattern_handbuilt"
+  },
+  {
+    "plan_id": "plan_003",
+    "category": "Roads",
+    "location": {"village": "Sultanpur", "block": "East", "district": "Nagpur"},
+    "title": "Repair and widening of main village road - Sultanpur",
+    "estimated_cost_inr": 2200000,
+    "estimated_beneficiaries": 980,
+    "source": "mplads_pattern_handbuilt"
+  },
+  {
+    "plan_id": "plan_004",
+    "category": "Water",
+    "location": {"village": "Bhelupur", "block": "West", "district": "Nagpur"},
+    "title": "Overhead water tank and pipeline - Bhelupur",
+    "estimated_cost_inr": 4100000,
+    "estimated_beneficiaries": 1620,
+    "source": "mplads_pattern_handbuilt"
+  },
+  {
+    "plan_id": "plan_005",
+    "category": "Sanitation",
+    "location": {"village": "Rampur", "block": "Sadar", "district": "Nagpur"},
+    "title": "Community toilet complex - Rampur",
+    "estimated_cost_inr": 900000,
+    "estimated_beneficiaries": 420,
+    "source": "mplads_pattern_handbuilt"
+  },
+  {
+    "plan_id": "plan_006",
+    "category": "Electricity",
+    "location": {"village": "Kesarpur", "block": "North", "district": "Nagpur"},
+    "title": "Solar street lighting - Kesarpur main road",
+    "estimated_cost_inr": 1200000,
+    "estimated_beneficiaries": 760,
+    "source": "mplads_pattern_handbuilt"
+  },
+  {
+    "plan_id": "plan_007",
+    "category": "Vocational",
+    "location": {"village": "Sultanpur", "block": "East", "district": "Nagpur"},
+    "title": "ITI skill development centre - Sultanpur",
+    "estimated_cost_inr": 5000000,
+    "estimated_beneficiaries": 300,
+    "source": "mplads_pattern_handbuilt"
+  },
+  {
+    "plan_id": "plan_008",
+    "category": "Other",
+    "location": {"village": "Bhelupur", "block": "West", "district": "Nagpur"},
+    "title": "Community hall and digital kiosk - Bhelupur",
+    "estimated_cost_inr": 1600000,
+    "estimated_beneficiaries": 550,
+    "source": "mplads_pattern_handbuilt"
+  }
+]

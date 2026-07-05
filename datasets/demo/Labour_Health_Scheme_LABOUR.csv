@@ -1,0 +1,269 @@
+S.No.,Name of the dispensary,State,District,Address,Pincode,No of OPD Total(Static),No of OPD Total(Mobile),No. IPD,Total no of Male OPD,Total no of Female OPD,Total no of Children OPD,Approx no  of patient reffered outside due to lack of medicines,Total value of medicines available in hospital/Despensary as on Last date  of the reporting month ( in Rs.)
+1,KAMPTEE,MAHARASHTRA,NAGPUR,"Beedi Worker Welfare Fund Dispensary, House No.2/154, Gujri Chowk, Near CTO, Kamptee",441002,593,NA,NA,235,386,35,0,334420.64
+2,BHANDARA,MAHARASHTRA,BHANDARA,"Beedi Worker Welfare Fund Dispensary,  Plot No.110, Baba Mastan Shan Ward, Near Mastan Shah Dargah, Bhandara",441904,419,0,NA,180,239,10,0,138677
+3,TUMSAR,MAHARASHTRA,BHANDARA,"Beedi Worker Welfare Fund Dispensary,         Gandi Nagar, Ward No.16, Tumsar",441912,427,0,NA,192,235,30,0,98098.86
+4,TIRORA,MAHARASHTRA,GONDIA,"Beedi Worker Welfare Fund Dispensary,    C/o Dr.Biswas Shastri Ward, Station Road, Tirora.",441911,336,0,NA,163,173,37,0,157370
+5,GONDIA,MAHARASHTRA,GONDIA,"Beedi Worker Welfare Fund Dispensary, Balaghat Road, Ward No.3, Old Tilak Ward, Gondia.",441614,711,0,NA,266,445,32,0,329694.17
+6,AMGAON,MAHARASHTRA,GONDIA,"Beedi Worker Welfare Fund Dispensary, House of Asati, Above MSEB Office, Ambedkar Chowk, Amgaon.",441902,386,0,NA,91,295,4,0,270559.13
+7,LAKHANI,MAHARASHTRA,BHANDARA,"Beedi Worker Welfare Fund Dispensary, H.No.601, Ward No.2, Murwadi, Lakhani",441804,369,0,NA,168,201,16,0,134153.06
+8,JALNA,MAHARASHTRA,JALNA,"Beedi Worker Welfare Fund Dispensary, C/o.Advocate D.S. Shivankar, Houe No.1-32-169, Shivaji Chowk, Opp.Hotel Madhuban, Jalna",431203,220,NA,NA,108,112,0,0,28486
+9,AHMEDNAGAR,MAHARASHTRA,AHMEDNAGAR,"Municipal Bldg., Priyadarashani Complex, Sarjepura, Ahmednagar",414001,119,485,NA,218,386,20,0,164283.73
+10,SINNAR,MAHARASHTRA,NASHIK,"Beedi Worker Welfare Fund Dispensary, House No.992-B, Ganesh Chowk, Sinnar.",422103,495,0,NA,240,255,24,0,207912
+11,SANGAMNER,MAHARASHTRA,AHMEDNAGAR,"Beedi Worker Welfare Fund Dispensary, Cottage Hospital Compound, Sangamner",442605,577,200,NA,317,460,21,0,252460.89
+12,PUNE,MAHARASHTRA,PUNE,"Beedi Worker Welfare Fund Dispensary,  C/o Sonwane Maternity Home, Near Sonmarg Talkies, Mahatma Fule Peth, Pune.",411042,123,0,NA,39,84,12,0,101415.84
+13,SOLAPUR,MAHARASHTRA,SOLAPUR,"Beedi Worker Welfare Fund Dispensary, 1881, New Paccha Peth (Datta Nagar), Padmashali Purohit Sangh Building , Solapur.",413005,1850,0,NA,838,1013,478,0,931599.87
+14,SANGLI,MAHARASHTRA,SANGLI,"Beedi Worker Welfare Fund Dispensary, Smt.Sulbha Suresh Waghe, City Survey No.844, Behind Sai Kirana Store, Khanbhag, Sangli.",416416,24,312,NA,146,190,17,0,95251.88
+15,MUMBAI,MAHARASHTRA,MUMBAI,"Beedi Worker Welfare Fund Dispensary, Flat No.703, Building No.29 (Mhada Flats), Oshiwara, Andheri (W), Mumbai.",400053,112,68,NA,129,51,16,0,95583.94
+16,BHIWANDI,MAHARASHTRA,THANE,"Beedi Worker Welfare Fund Dispensary, Gala No.4570 & 902, Aashirwad Nagar, Phene Road, Opp. Saibaba Mandir, Kamatghar, Bhiwandi.",421305,520,NA,NA,198,322,119,0,130455.04
+17,NANDED,MAHARASHTRA,NANDED,"Govt. Ayurvedic Dispensary,                            BWWF LWO Dispensary, Ground Floor, Telephone Bhavan, BSNL, Opp. Collector office Vazirabad, Nanded.",431601,573,NA,NA,237,336,2,0,304896
+18,WANI,MAHARASHTRA,YAVATMAL,"Govt. Ayurvedic Dispensary,     C/o Smt. Chhaya Rameshrao Uplenchwar Co. Operative Bank Colony, Ward No.2, Nandepara Road, Tal-Wani",445304,269,18,NA,93,94,5,0,163417
+19,"SCMMU,Azamgarh",Uttar Pradesh,Azamgarh,H. No.-238 Civil Lines (Christian Campus) District-Azamgarh (UP) ,276001,517,0,0,287,230,not available,0,not available
+20,"SCMMU,Ballia",Uttar Pradesh,Ballia,"Shri Radha Krishna Singh H. No.- 391,Infront of Baleshwar Mandir, Japlinganj, Ballia (UP) ",277001,518,0,0,238,280,not available,0,not available
+21,"SCMMU,Bara, Allahabad",Uttar Pradesh, Allahabad,"C/o Peetambar Lal Desharvani, Pawar House Chaurahe ke Pass Machhli Market ke Pichhe, Gohaniya Bazar, Post –Jasra, Tehsil- Bara, District- Prayagraj (UP) ",212107,250,0,0,110,140,not available,0,not available
+22,"SCMMU,Phoolpur, Allahabad",Uttar Pradesh, Allahabad,"Beerkajee, petrol pump keSamne Mahindra Finance ke Niche, Phoolpur, District- Prayagraj (UP) ",276001,308,0,0,155,153,not available,0,not available
+23,"SCMMU,Handia, Allahabad",Uttar Pradesh,Allahabad,"Ward No. 05 national Inter College kepichhe (Handia), Prayagraj (UP) ",221503,510,0,0,337,273,not available,0,not available
+24,"SCMMU,Kareli, Allahabad",Uttar Pradesh, Allahabad,"C/263/2, GTB Nagar, Kareli, Prayagraj, (UP).",211026,657,0,0,273,438,not available,0,not available
+25,"SCMMU,Bharwari, Kaushambi",Uttar Pradesh, Kaushambi,"Mohalla –Naya Bazar, Bharwari, District- Kaushambi (UP) ",212201,500,0,0,226,274,not available,0,not available
+26,"SCMMU,Fatehpur",Uttar Pradesh,Fatehpur,"H. No. 217, Krishna Bihari Nagar, District- Fatehpur (UP).",212601,667,0,0,224,443,not available,0,not available
+27,"SCMMU,faizabad",Uttar Pradesh,Faizabad,"Post- Bada Dak Khana, Nirala Nagar Varma Dhaba ke pichhe Faizabad Lucknow Road, District- Faizabad (UP)",224001,270,0,0,92,178,not available,0,not available
+28,"SCMMU,Gazipur",Uttar Pradesh,Gazipur,"102, Kapurpur Lal Darwaja district- Ghazipur (UP).",233001,446,0,0,204,242,not available,0,not available
+29,"SACMMU,Jaunpur",Uttar Pradesh,Jaunpur,"Rijvi Khan, Madhare Tola, District – Jaunpur (UP) ",222002,743,0,0,329,414,not available,0,not available
+30,"SCMMU,Jhansi",Uttar Pradesh,Jhansi,"H. No. 868, Khati baba Tubwell Road, District –Jhansi (UP) ",284003,439,0,0,205,234,not available,0,not available
+31,"SCMMU,Lar, Deoria",Uttar Pradesh,"Lar, Deoria","Chanki Road, Chandi Mod, Lar District –Deoria, (UP).",274502,475,0,0,211,264,not available,0,not available
+32,"SCMMU,Mau",Uttar Pradesh,Mau,"C/o Ranjeet Singh, H.No.- 65, Imliya Mau, Fatma, Hospital ke pichhe, Post- Mau Nath Bhanjan, District – Mau (UP) ",275101,361,0,0,186,175,not available,0,not available
+33,"SCMMU,Mirzapur",Uttar Pradesh,Mirzapur,"Lodhi Mahaveer Marg, District- Mirzapur (UP). ",231001,568,0,0,60,508,not available,0,not available
+34,"SCMMU,Naugaon Sadat, Amroha",Uttar Pradesh,Amroha,"Mohlla Hattawala, Naugawan Sadat, District- J.P. Nagar, (UP). ",244251,366,0,0,158,208,not available,0,not available
+35,"SCMMU,Raibareli",Uttar Pradesh,Raibareli,"Krishnapuram, Kishunpur, Near Tripula Chauraha, Raebareli (UP).",229001,458,0,0,126,332,not available,0,not available
+36,"SCMMU,Rampur",Uttar Pradesh,Rampur,"Salim Manjil, (Nikat Idgah) Shahbad Get District –Rampur (UP) ",244901,892,0,0,386,506,not available,0,not available
+37,"SCMMU,Sultanpur",Uttar Pradesh,Sultanpur,"H. No. 538, Near Tiny Tots Public School, Lal Diggi, Civil Lines, District- Sultanpur (UP).",228001,240,0,0,102,138,not available,0,not available
+38,"SCMMU,Lalitpur",Uttar Pradesh,Lalitpur,"Smt. Kesar W/o Veeran Lal H. No. 130 Nehru Nagar Bansi Dham colony, Nehru Nagar, Lalitupr (UP)",284403,612,0,0,179,433,not available,0,not available
+39,"SCMMU,Agwanpur",Uttar Pradesh,Moradabad,"Nikat M.S. Inter College, Agwanpur Station Road, District- Muradabad (UP) ",244001,324,0,0,108,216,not available,0,not available
+40,"SCMMU,Amroha",Uttar Pradesh,Amroha,"Shri SadanPremVihar Colony KailsaChaurahaAmroha, District J.P. nagar (UP) ",244221,682,0,0,280,402,not available,0,not available
+41,"SCMMU,Varanasi",Uttar Pradesh,Varanasi,"Jalali Patti, Post- Bhullanpur, (PAC) District- Varanasi (UP).",221103,987,0,0,424,563,not available,0,not available
+42,"SCMMU,Anola, Bareilly",Uttar Pradesh,"Anola, Bareilly","Tehsil Get, Nala Par District- Bareilly (UP) ",243001,427,0,0,80,347,not available,0,not available
+43,"BWH, GURSAHAIGANJ, KANNAUJ",Uttar Pradesh,KANNAUJ,"Gopal Nagar, G.T. Road Gursahaiganj, District- Kannauj (UP). ",209722,1795,0,0,1023,772,not available,0,not available
+44,"SCMMU, Bagedia",Odisha,Angul,Bagedia,759141,771,-,-,321,450,Not specified,Nil,Enclosed at Annexure
+45,"Static Disp., Baieswar",Odisha,Cuttack,Baideswar,754009,924,-,-,463,924,Not specified,Nil,Enclosed at Annexure
+46,"Static Disp., Balasore",Odisha,Balasore,Balasore,756002,372,-,-,150,220,Not specified,Nil,Enclosed at Annexure
+47,"Static Disp., Balijhari",Odisha,Cuttack,Balijhari,754037,966,-,-,585,381,Not specified,Nil,Enclosed at Annexure
+48,"Static Disp.,Brahamabarada",Odisha,Jajpur,Brahamabarada,755005,378,-,-,219,159,Not specified,Nil,Enclosed at Annexure
+49,"MMU, Bhubaneswar",Odisha,Khurda,Bhubaneswar,751015,245,95,-,105,140,Not specified,Nil,Enclosed at Annexure
+50,"SCMMU, Boinda",Odisha,Angul,Boinda,759128,314,-,-,144,170,Not specified,Nil,Enclosed at Annexure
+51,"SCMMU, Dasarathpur",Odisha,Jajpur,Dasarathpur,755006,567,-,-,301,266,Not specified,Nil,Enclosed at Annexure
+52,"SCMMU, Gholpur",Odisha,Cuttack,Gholpur,754029,1132,-,-,541,591,Not specified,Nil,Enclosed at Annexure
+53,"MMU., Gujidarada",Odisha,Bhadrak,Gujidarada,756128,1906,-,-,830,1076,Not specified,Nil,Enclosed at Annexure
+54,"SCMMU,Kamakshyanagar",Odisha,Dhenkanal,Kamakshyanagar,759018,370,-,-,210,160,Not specified,Nil,Enclosed at Annexure
+55,"SCMMU,Khandapada",Odisha,Nayagarh,Khandapada,752077,628,-,-,306,322,Not specified,Nil,Enclosed at Annexure
+56,"SCMMU,Paramanpur",Odisha,Sambalpur,Parmanpur,768200,507,-,-,215,292,Not specified,Nil,Enclosed at Annexure
+57,"SCMMU,Radhakhol",Odisha,Sambalpur,Redhakhol,768106,540,-,-,280,260,Not specified,Nil,Enclosed at Annexure
+58,"SCMMU, Rengali",Odisha,Sambalpur,Rengali,768212,1064,-,-,524,540,Not specified,Nil,Enclosed at Annexure
+59,"SCMMU,Sambalpur",Odisha,Sambalpur,Sriramnagar,768005,802,-,-,384,418,Not specified,Nil,Enclosed at Annexure
+60,"SCMMU,Samasingha",Odisha,Sambalpur,Samasingha,768213,916,-,-,440,476,Not specified,Nil,Enclosed at Annexure
+61,"SCMMU,Salipur",Odisha,Cuttack,Salipur,754202,674,-,-,328,346,Not specified,Nil,Enclosed at Annexure
+62,"SCMMU,Tinkbir",Odisha,Deogarh,Tinkbir,768109,505,-,-,236,269,Not specified,Nil,Enclosed at Annexure
+63,"SCMMU,Rourkela",Odisha,Sundergarh,Sector-4,769002,222,-,-,154,68,Not specified,Nil,Enclosed at Annexure
+64,"MMU,Barbil",Odisha,Keonjhar,Kalyanbhavan,758035,319,-,-,185,134,Not specified,Nil,Enclosed at Annexure
+65,"PHC, Kalimela",Odisha,Malkangiri,Kalimela,764047,358,-,-,186,172,Not specified,Nil,Enclosed at Annexure
+66,"PHC,Siljora",Odisha,Keonjhar,Siljora,758034,169,-,-,101,58,Not specified,Nil,Enclosed at Annexure
+67,"SCMMU, Gorumahisani",Odisha,Mayurbhanj,Gorumahisani,757042,330,-,-,183,147,Not specified,Nil,Enclosed at Annexure
+68,"Central Hospital,Joda",Odisha,Keonjhar,Joda,758038,596,-,-,362,234,Not specified,Nil,Enclosed at Annexure
+69,"SCMMU,Jasidih",Jharkhand,Deoghar,"Static-cum-Mobile Medical unit Beedi Worker Welfare Fund, Assam Road,Mouza-Dharampur At/Po:-Jasidih  District-Deoghar-814142   ",814142,702,Nil,Nil,279,423,Nil,Nil,Nil
+70,"SCMMU,Chakardharpur",Jharkhand,West singhbhum,"Static-cum-Mobile Medical unit Beedi Worker Welfare Fund, Near Bhart Bhawan Danda Sai At/Po;-Chakardharpur District. West singhbhum-833102",833102,972,Nil,NA,553,399,20,Nil,NA
+71,"SCMMU,Pakur",Jharkhand,Pakur,"Static-cum-Mobile Medical unit Beedi Worker Welfare Fund, Moh. Kailah Nagar At/PO:-Pakur District:-Pakur-816107",816107,759,Nil,Nil,290,449,20,Nil,NA
+72,"Smu,Bhawnathpur",Jharkhand,Garhwa,Mobile Medicl unit Limestone & Dolomite Fund At/Po:-Bhawnathpur Township District-Garhwa-822112,822129,0,Nil,Nil,Nil,Nil,Nil,Nil,NA
+73,"SMU,Chatra",Jharkhand,Chatra,"Static  Medical unit Beedi Beedi Worker Welfare Fund,             Moh. Saboon Factory          At/PO:-Chatra District-Chatra-825401                               ",825401,109,Nil,Nil,33,76,Nil,200,NA
+74,Ahmedabad - BWWF,Gujarat,Ahmedabad,"Nani Khidki, Near Urdu School, Rakhial Char rasta, Rakhial",380021,258,264,0,8,396,118,0,45600
+75,Sarsa - BWWF,Gujarat,Anand,"Beedi Workers Welfare Fund Dispensary, Sarsa",388365,237,852,0,613,443,33,0,35000
+76,Borsad - BWWF,Gujarat,Anand,"2, Mahavir Society, Vasad Road, Borsad",388540,303,429,0,249,261,222,0,31676
+77,Karkhadi - BWWF,Gujarat,Vadodara,"Near by Ambaji Temple, At & PO. Karkhadi, Ta. Padra",391450,486,0,0,336,150,0,0,25000
+78,Vadnagar - BWWF,Gujarat,Vadnagar,"Chatreshwari matano chawl, near Patel vadi, Pithori darwaja",384355,1055,0,0,121,897,37,0,35000
+79,Patan - BWWF,Gujarat,Patan,"Lakhiyarvad, Rajkawad",384265,345,288,0,54,507,72,0,62300
+80,Palanpur - BWWF,Gujarat,Banaskantha,"Tin Batti, Bahadur gad, At & PO Palanpur",385001,466,54,0,85,420,15,0,40000
+81,Gadu - LSDMWWF,Gujarat,Junagadh,"Infront of Railway Station, At : Gadu (Sherbaug) Ta : Maliya",362255,1020,336,0,576,684,96,0,40000
+82,Ranavav - LSDMWWF,Gujarat,Porbandar,"Near Station plot, Ranavav",360550,511,0,0,190,266,55,0,500
+83,Dungarpur quarry - LSDMWWF,Gujarat,Junagadh,"Shubhashnagar - 3 , Dungarpur Quarry",362263,1104,0,0,363,471,270,0,40000
+84,Chhota Udepur - LSDMWWF,Gujarat,Chhota Udepur,"House no 660, Nirmal Society, Club road",391165,633,99, ,336,336,60,0,36000
+85,"BWWF Ayurvedic Dispensary, Baran",Rajasthan,Baran,Gopal colony mangrol road Baran c/o Shri Rakesh choudhary ka makan,325205,692,Nil,Nil,20,672,Nil,0,Approximat 5000 Rs Only
+86,"BWWF Ayuvedic Dispensary, Bundi",Rajasthan,Bundi,Bundi,323001,547,Nil,Nil,131,416,60,0,6000 approximately
+87,"Beedi Workers Welfare Fund Dispensary, Beawar",Rajasthan,Beawar,"Gali No.8, Jamalpura, Sendra Road, Beawar",305901,1255,0,0,411,797,47,0,59550
+88,"LSDM Ayurvedic Dispensary, Atbara",Rajasthan,Pali,Lsdm ayurvedic dispensary atbara,306104,1089,Nil,Nil,891,198,0,0,7000
+89,"BWWF Allopathic Dispensary, Tonk",Rajasthan,Tonk,Tonk,304001,590,N.A,Nil,145,430,15,0,45000
+90,"BWWF Ayurvedic Dispensary, Sawai madhopur",Rajasthan,Sawai madhopur,Old city rajbag sawai madhopur,322021,477,0,0,275,202,10,0,Approx-4000
+91,LSDM AYURVEDIC DISPENSARY DAROLI UDAIPUR,Rajasthan,Udaipur,Quary LSDM Mines VPO Daroli near dabok airport udaipur,313022,909,Nil,Nil,891,18,18,250,6300
+92,"LSDM Allopathic Dispensary, Upl oden",Rajasthan,Rajsamand,"NH 8, Upli odan, Nathdwara",313301,1242,0,0,579,663,0,0,35000
+93,"Beedi Workers Welfare Fund Dispensary, Karauli",Rajasthan,Karauli,"Chatikana Bazar, Karauli",322241,843,Nil,Nil,249,594,96,48,? 29505/-
+94,L.W.O. Limestone & Dolomite Mines Labour Static cum Mobile Dispensary CHANDERIYA,Rajasthan,Chittorgarh,Birla Cement Colony Madhav Nagar,312021,891,Nil,Nil,592,272,27,0,23000
+95,"LSDM Allopathic Dispensary, Gotan",Rajasthan,Nagaur,Jk road near gurudeep hotel gotan,342902,1011,0,0,558,450,3,0,31000
+96,"LSDM Allopathic Dispensary, Satalkhedi",Rajasthan,KOTA,WARD NO 13 Pipakhedi road VPO SATALKHEDI,326519,206,Nil,Nil,58,148,34,0,42000
+97,"MMLW Dispensary, Bagore",Rajasthan,Bhilwara,"MMLW Dispensary, VPO - Bagore , Tehsil - mandal , District - Bhilwara",311402,620,Nil,Nil,120,380,20,10,62950rs
+98,"BWWF Dispensary, sujangarh (rajasthan)",Rajasthan,Churu,"Bwwf dispensary, sujangarh,behind jat hostel ,near tehsildar ki kui",331507,1515,Nil,Nil,715,750,50,0,40493 rupees approx
+99,"LSDM Workers Welfare Fund Ayurvedic Dispensary, CHECHAT",Rajasthan,Kota,"Jugnu Stone Mines, Chechat",326518,1395,0,0,810,585,26,230,Rs. 9800/- (Approx)
+100,"LSDM Ayurvedic Dispensary, Lakheri",Rajasthan,Bundi,"ACC Colony Campus, Lakheri,Bundi Raj.",323603,561,0,0,291,234,36,0,18000approximate
+101,BWWF DISPENSARY AJMER,Rajasthan,Ajmer,"Bhajanganj, Ajmer",305001,474,0,0,84,351,39,20,Rs. 57000
+102,"LSDM Ayurvedic Dispensary, Sonu",Rajasthan,Jaisalmer,"Sonu Village, Jaisalmer",345001,981,0,0,981,0,0,0,11000
+103,"BWWF Ayurvedic Dispensary, Nasirabad",Rajasthan,Ajmer,"Ganesh chouarha palsania road, Nasirabad",305605,381,0,0,102,279,0,0,9000
+104,"BWWF Allopathic Dispensary, Kota",Rajasthan,Ajmer,Near Deendayal park kota,324006,369,0,0,170,199,0,0,48000
+105,"Beedi Workers Welfare Fund  Dispensary
+ Manjeshwar",Kerala,Kasaragod,"Shri Ninthyananda Bhavan Complex,Manjeshwar Railway Station Road, Udayawara, Kasaragod",671323,296,Nil,NIL,108,183,5,25,"Rs.1,67,548/-"
+106,"Beedi Workers Welfare Fund  Dispensary
+Kasaragod",Kerala,Kasaragod,"Service C-op. Bank Building, Adkathbail, Kasaragod",671121,376,Nil,NIL,135,213,28,NIL,"Rs.85,235/-"
+107,"Beedi Workers Welfare Fund  Dispensary
+Nileshwar",Kerala,Kasaragod,"Building No. NMC-32/622, 
+Weavers Street, Nileshwar Kasaragod",671314,179,Nil,NIL,82,90,7,11,"Rs.4,88,377/-"
+108,"Beedi Workers Welfare Fund  Dispensary
+Kannur",Kerala,Kannur,"Madhava Apartment, 
+Thazhechovva, 
+Thezukilpedika, Kannur",670006,272,Nil,NIL,64,208,0,5,"Rs.1,73,500/-"
+109,"Beedi Workers Welfare Fund  Dispensary
+Thalassery",Kerala,Kannur,"Melur Road,Opp. Panchayat Maidan,Palayad PO,
+Tellicherry,Kannur",670661,217,Nil,NIL,73,142,2,1,"Rs.3,37,010"
+110,"Beedi Workers Welfare Fund  Dispensary
+Guruvayur",Kerala,Thrissur,"Building No. 238/2, Manikathupady Road, East Nada, Guruvayur, Thrissur",680101,211,Nil,NIL,82,103,26,NIL,"Rs. 76,075/-"
+111,"Cine Workers Welfare Fund  Dispensary
+Trivandrum",Kerala,Thiruvananthapuram,"Vanchiyoor PO, 
+Trivandrum",695035,362,Nil,NIL,170,174,18,10,"Rs.6,00,000/-"
+112,CENTRAL HOSPITAL MYSORE,KARNATAKA,MYSORE,Beedi workers Central Hospital Kalayani giri Nagara Mahadevapura Road Mysore -570029,570029,3656,704,195,359,3120,881,15,1200000
+113,CENTRAL HOSPITAL YADGIR,KARNATAKA,YADGIRI,"O/O The Medical Officer Central Hospital, Yadgiri-585201",585201,1308,139,88,349,911,187,5,621277
+114,CHAMARAJNAGAR,KARNATAKA,CharmrajNagar,"The Medical officer Static  Dispensary No 197/1, Sheriff Complex, 1st Floor, AP Mohalla Chamarajanagara-571313",571313,307,0,0,45,186,76,0,153977
+115,BANGALORE,KARNATAKA,BANGALORE,The General Duty Medical officer SCM Dispensary No 23/1 Vinayak Nagara Old Guddahalli 3rd Cross Bangalore-560026,560021,216,588,0,145,514,145,10,501616
+116,BELLARY,KARNATAKA,Bellary,"The Medical officer SCM Dispensary No 171 Belagal Cross Bandihatti Road, Cowl Bazar, Bellary-583102",583104,137,368,0,244,227,34,70,143160
+117,CHANNAPATNA,KARNATAKA,Ramnagara,The Medical officer Static  Dispensary No 2269/12 Manjesh Nilaya 5th Cross North Kuvempu Nagar Channapatna-562160,562159,311,0,0,114,163,34,NIl,290000
+118,DERALAKATTE,KARNATAKA,DK,The Medical officer SCM Dispensary No 3-185/3 SANNDHI Nilaya 1st Floor Bellma villiage Derlakatte Po-575018 Mangalore,575018,469,96,0,186,352,27,0,217301
+119,DHARWAD,KARNATAKA,Dharwad,"The Medical officer Static  Dispensary,  No 19, Aradhana Buildilng, Panchakacheri Oni,  Kamanakatti Road, Dharwada -580001",580001,225,0,0,65,150,10,2,214660
+120,GUNDLUPET,KARNATAKA,CharmrajNagar,"The Medical officer Static  Dispensary,  Maruthi Nilaya, Viajaya Extn.,  Gundlupete-571111, Chamarajanagara - dist.",571111,274,0,0,108,144,22,0,55543
+121,HARIHAR,KARNATAKA,Davengere,"The Medical officer SCM Dispensary,  Ananda Manidiram, 1st Floor, Near, SSK Kalyanamantap, Harihara-577601, Davanagere-Dist.",577601,96,0,0,20,65,11,0,85000
+122,HUBLI,KARNATAKA,Dharwad,"The Medical officer Static  Dispensary,  RM Chatni Building, Hubballi - 580024, Dharwada -Dt",580024,265,0,0,75,184,6,4,157626
+123,KAIKAMBA,KARNATAKA,DK,"The Chief Medical officer Static Dispensary,  Vinayaka Complex, 1st floor, Main Road, PO-Kinnikambla,  KAIKAMBA-574151,  DK - dist.",574151,1094,0,0,296,631,167,0,869346
+124,KALLADKA,KARNATAKA,DK,"The Medical officer SCM Dispensary,  Bharaath Plaza, 1st Floor, Main road, Opp;KT-Hotel, KALLADKA,  Bantwal Tq-574222",574222,502,38,0,196,327,17,0,178820
+125,KARIGANUR ( Hosapete ),KARNATAKA,Vijaynagar,"The Medical officer SCM Dispensary,  No.616/A, 1st Floor, 3rd Cross, 3rd Ward, Nerar Gopinath School,  Opp: PHC, Patel Nagara, Hosapete-583102",583201,127,209,0,181,108,47,0,155154
+126,KARKALA,KARNATAKA,Udupi,"The Medical officer SCM Dispensary,  1st Floor,  Damodar Building, KARKALA - 574104, Udupi - dist.",574104,135,83,0,73,145,0,0,25
+127,KATIAPALLA,KARNATAKA,DK,"The Medical officer SCM Dispensary,  No.145,  5th Block, Building No. 5 - 153A, Krishnapura Post, KATIPALLA, DK - Dist - 575030",575030,331,0,0,141,181,9,0,179211
+128,KOLAR,KARNATAKA,KOLAR,"The Medical officer SCM Dispensary,  No. 1905, Kutub Gori Mohalla, KOLARA-563102",563102,206,84,0,23,267,0,NIL,108451
+129,LOKAPUR,KARNATAKA,Bagalkot,"The Medical officer SCM  Dispensary,  Chakkalabbi Building, Kadrakoppa Road, Lokapura -587122, Bagalkote - diat",587122,73,962,0,337,634,64,32,510543
+130,MANDYA,KARNATAKA,Mandya,"The Medical officer SCM  Dispensary,  No.185, 1st Floor, Venkatadri, A-Block, 5th Cross, Mudakere, Vivekananda Layout, Mandya-571402.",571401,580,196,0,248,411,117,0,337130
+131,MOODBIDRI,KARNATAKA,DK,"The Medical Officer,  SCM Dispensary, Veera Nilaya, No.10236,  Jyothinagara, Kodangallu, Moodabidri-574197",574197,321,340,0,284,328,49,20,289946
+132,NIPANI,KARNATAKA,Belgaum,"The Medical Officer,  SCM Dispensary, Ashok Nagara, No.153/218/A/1808, UB and IB Kazi building, Nippani-591237",591237,259,0,0,84,141,34,0,153358
+133,PADIL,KARNATAKA,DK,"The Medical officer SCM  Dispensary,  Darabar Hill, No.1-53/12(1),  Padil-5750007 Mangaluru, Dk-Dist.",575007,373,180,0,212,326,15,,281533
+134,PUTTUR,KARNATAKA,DK,"The Medical officer SCM  Dispensary,  Masjid Building, 1st Floor, PUTTURU-574 201, DK-Dt",574201,406,0,0,141,228,37,10,160000
+135,SANDUR,KARNATAKA,Bellary,"The Medical officer SCM Dispensary,  No. 92/1, Ward No.1, Bellary Road, Sanduru-583119",583119,91,335,0,224,167,35,0,118736
+136,SIRA,KARNATAKA,Tumkur,"The Medical officer Static  Dispensary,  Kuvempu Road, Neara Gajanana School, Jamiya Nagara, Sira-5572137.",572137,482,0,0,201,251,30,13,380788
+137,THUMBHE,KARNATAKA,DK,"The Medical officer SCM Dispensary,  THUMBE-574143 Via- Farangipete, Bantwal Tq. DK-Dist.",574143,172,72,0,82,157,5,0,169628
+138,TUMKUR,KARNATAKA,Tumkur,"The Medical officer SCM  Dispensary,  Shiva Nilaya, No.3048, 4th Main, Gandhinagara, Tumkuru-572102",572102,442,0,0,198,206,38,0,224256
+139,UDUPI,KARNATAKA,UDUPI,"The Medical officer SCM Dispensary,  No.9-45, B/61, 1st floor, Sujatha Building, Ambigalu, Udupi - 576105",576105,256,0,0,101,144,11,3,222286
+140,UPPINANGADY,KARNATAKA,DK,"The Medical officer SCM Dispensary,  Sri. Laxmi Arcade,No.3-43(2), 2nd Floor, NH-75, Uppinangadi-574241",574241,174,0,0,70,98,6,0,139111
+141,VAMADAPADAVU,KARNATAKA,DK,"The Medical officer SCM Dispensary,  Canara Bank Building, Near Bus Stand, VAMADAPADAVU-574324 Bantwal-Tq. DK-Dist.", ,329,0,0,101,217,11,0,151708
+142,"LSDM Static  Dispensary, Sataun", H.P. ,Sirmour,V.P.O. Sataun,173029,303,NA,NA,137,166,NA,NA,18196.2
+143,"Ayurvedic Dispensary 
+Bamhanibanjar",Madhya Pradesh,Mandla,Mandla,481885,271,0,0,204,63,4,17,13605
+144,"Ayurvedic Dispensary
+ Bamhori  ",Madhya Pradesh,Chhatarpur,Chhatarpur,471318,221,0,0,129,80,12,0,63980
+145,"BWWF Dispensary
+ Begumganj",Madhya Pradesh,Raisen,Raisen,464881,106,0,0,38,55,13,0,12633.441
+146,"BWWF Dispensary 
+Bhopal",Madhya Pradesh,Bhopal,Bhopal,462003,348,0,0,80,195,73,0,30331.5
+147,"BWWF Dispensary
+ Burhanpur",Madhya Pradesh,Khandwa,Khandwa,450331,340,0,0,74,189,77,0,90326.35
+148,"BWWF Dispensary 
+Chanderi",Madhya Pradesh,Ashoknagar,Ashoknagar,473446,0,0,0,0,0,0,0,0
+149,"BWWF Dispensary 
+Dalpatpur",Madhya Pradesh,Sagar,Sagar,470339,0,0,0,0,0,0,,24249.72
+150,"BWWF Dispensary 
+Damoh",Madhya Pradesh,Damoh,Damoh,470661,473,0,0,123,321,29,0,149072.24
+151,"BWWF Dispensary 
+Datia",Madhya Pradesh,Datia,Datia,475661,0,0,0,0,0,0,0,0
+152,"BWWF Dispensary 
+Deori",Madhya Pradesh,Sagar,Sagar,470226,262,0,0,96,133,33,10,62145.1814
+153,"BWWF Dispensary
+ Gadarwara",Madhya Pradesh,Narsinghpur,Narsinghpur,487551,0,0,0,0,0,0,0,0
+154,"BWWF Dispensary
+ Garhakota",Madhya Pradesh,Sagar,Sagar,470229,567,0,0,241,236,90,25,172025.06
+155,"BWWF Dispensary
+Guna ",Madhya Pradesh,Ashoknagar,Ashoknagar,473001,0,0,0,0,0,0,0,0
+156,BWWF Dispensary Gwalior,Madhya Pradesh,Gwalior,Gwalior,474004,0,0,0,0,0,0,0,0
+157,"BWWF Dispensary
+ Hatta",Madhya Pradesh,Damoh,Damoh,470775,29,242,0,69,196,6,0,0
+158,"BWWF Dispensary 
+Indore",Madhya Pradesh,Indore,Indore,452011,278,0,0,126,139,13,0,22033
+159,"BWWF Dispensary
+ Jabalpur ",Madhya Pradesh,Jabalpur,Jabalpur,482001,317,0,0,103,184,30,0,146714.65
+160,"LSDM Dispensary 
+Jhukehi",Madhya Pradesh,Satna,Satna,485773,120,0,0,56,58,6,0,74998.6
+161,"BWWF Dispensary
+ Katangi",Madhya Pradesh,Jabalpur,Jabalpur,483105,259,0,0,92,148,19,0,18042.94
+162,"Ayurvedic Dispensary
+Katni",Madhya Pradesh,Katni,Katni,483501,179,0,0,72,100,7,57,0
+163,"BWWF Dispensary 
+Khurai",Madhya Pradesh,Sagar,Sagar,470117,232,0,0,98,121,13,0,15939.968
+164,"LSDM Dispensary 
+Maihar",Madhya Pradesh,Satna,Satna,485771,0,0,0,0,0,0,0,161109
+165,"BWWF Dispensary
+ Maugunj",Madhya Pradesh,Rewa,Rewa,486448,116,39,0,61,91,3,0,67727
+166,"BWWF Dispensary 
+Nohta",Madhya Pradesh,Damoh,Damoh,470663,0,0,0,0,0,0,0,0
+167,"BWWF Dispensary 
+Patan ",Madhya Pradesh,Jabalpur,Jabalpur,483113,0,0,0,0,0,0,0,0
+168,"BWWF Dispensary
+ Prithvipur",Madhya Pradesh,Teekamgarh,Teekamgarh,472338,0,0,0,0,0,0,0,0
+169,"BWWF Dispensary
+ Rahatgarh",Madhya Pradesh,Sagar,Sagar,470119,0,0,0,0,0,0,0,0
+170,"BWWF Dispensary 
+Rehli",Madhya Pradesh,Sagar,Sagar,470227,195,0,0,67,88,40,0,75671.592
+171,"BWWF Dispensary 
+Rewa",Madhya Pradesh,Rewa,Rewa,486001,0,0,0,0,0,0,0,0
+172,CHS Sagar+ BWWF Dispensary Sagar ,Madhya Pradesh,Sagar,Sagar,470002,704,319,0,456,567,0,0,320551
+173,Ayurvedic Dispensary Sagmania,Madhya Pradesh,Satna,Satna,485114,198,0,0,121,72,5,13,56170
+174,"BWWF Dispensary
+ Sanawad",Madhya Pradesh,Khargone,Khargone,451111,0,0,0,0,0,0,0,0
+175,"BWWF Dispensary 
+Satna",Madhya Pradesh,Satna,Satna,485001,322,0,0,119,200,3,0,12112.29
+176,"BWWF Dispensary 
+Sihora",Madhya Pradesh,Jabalpur,Jabalpur,483225,210,0,0,99,103,8,4,35392
+177,"BWWF Dispensary 
+Ujjain",Madhya Pradesh,Ujjain,Ujjain,456006,0,0,0,0,0,0,0,5177.07
+178,"BWWF Dispensary
+ Waraseoni",Madhya Pradesh,Balaghat,"Smt. Geeta Pandoria W/o Shri Narendra Pandoria,Ward No.3, Dindayal Chowk, Waraseoni Distt. Balaghat(M.P.)",481331,0,0,0,0,0,0,0,0
+179,"B.W.W.F Dispensary,Atmakur ",ANDHRA PRADESH,S. P. S. R. Nellore,"H.No 7/155-B 
+Tenkayathopu,Atmakur,SPSR Nellore district,Andhrapradesh.",524323,292,Nil,NIL,130,159,3,Nil,"1, 24,375.58"
+180,"B.W.W.F Dispensary,Kamalapuram","ANDHRA
+ PRADESH",Ysr Kadapa,"Door No-06/87
+ Angandi Ramaiah Street,Kamalapuram,YSR Kadapa ",516289,529,NILL,NILL,224,300,5,NiL,"1,07,111.34"
+181,B.W.W.F Dispensary  Kurnool,ANDHRA PRADESH,Kurnool,"Medical officer,B.W.W.F Dispensary,B/B-91, B - camp,Kurnool.",518002,141,Nil,Nil,62,72,7,NiL,"2,17,913"
+182,"B.W.W.F. Dispensary,Nellore",ANDHRA PRADESH,S. P. S. R. Nellore,"B. W. W. F. Dispensary DNO25-1-566, Z. P. Colony, 6th Cross Road, NELLORE.",524004,205,NiL,NiL,88,115,2,NiL,"2,95,561.16"
+183,B.W.W.F Dispensary  Rayachoti,ANDHRA PRADESH,Annamayya,"25/32-C-7,
+REDDYS COLONY,
+OPP RAMALAYAM,
+RAYACHOTI-516269,
+ANAMMAYA DIST, 
+ANDHRA PRADESH",516269,157,NIL,NIL,83,72,2,50,"3,68,757"
+184,B.W.W.F Srikalasthi,ANDHRA PRADESH,Tirupati,"5-400,MG Street,SRIKALAHASTI-517644,TIRUPATI DIST,ANDHRA PRADESH",517644,298,NIL,NIL,110,179,9,100,"4,00,872"
+185,    B.W.W.F Dispensary Vetapalem ,ANDHRA PRADESH,     Bapatla,"      B.W.W.F Dispensary
+      H.No. 1/1177/1, 
+      ImamNagar
+      Vetapalem ",523187,317,Nil,NIL,114,191,12,10,"2,00,218.59"
+186,"B.W.W.F ,Aler",TELANGANA ,Yadadri Bhuvanagiri ,"PLOTNO.6,Manthpuri Road,Opp. Aler flyover ,Aler.",508101,268,Nil,Nil,116,141,11,Nil,"1,64,929"
+187,"B.W.W.F Dispensary,Amarchinta",TELANGANA ,Wanaparthy,"H.No.9/99D,BWWF Dispensary,Near M.R.O Office,Amarchintha",509130,565,Nil,NIL,263,288,14,18,"7,14,539.80"
+188,"B.W.W.F Dispensery, Bheemgal",TELANGANA ,Nizamabad,"13-69/1/c/2, BWWF Dispensary
+Ayyappa nagar, road no 5, Bheemgal
+ ",503007,514,Nil,Nil,213,248,53,250,"2,65 000"
+189,B.W.W.F Dispensary Dubbak ,TELANGANA ,Siddipet ,"Near Maremma temple,Mustabad road, Dubbak ",502108,285,nil,nil,126,145,14,NiL,"4,70,760.89"
+190,B.W.W.F Dispensary Hyderabad,TELANGANA ,Hyderabad,B.W.W.F Dispensary H.no: 1-7-1046/21 Opp Azamabad Municiple Park Near RamnagarGundu,500020,378,564,942,253,631,58,Nil,"1,82,932.94"
+191,"B.W.W.F Dispensary, Jagtial",TELANGANA ,Jagtial,"H.No 1-5-144, adarsh nagar karimnagar road, jagtial",505327,640,113,Nil,308,421,24,50,"25,14,522"
+192,"B.W.W.F Dispensary,Kamareddy",TELANGANA ,Kamareddy,"5-3/1/28, Housing Board Colony, Kamareddy",503111,1106,,,402,481,223,Approx. 200,"9,46,881"
+193,B.W.W.F Dispensary Koratla ,TELANGANA ,Jagtial ,"H no. 5-2-167, LIC Colony, Korutla",505326,912,0,0,346,494,72,270,"11,32,204"
+194,"B.W.W.F Dispensary,Kothakota",TELANGANA ,Wanaparthy,"BWWF Dispensary,Near Jamia Masjid,Madanapur Station Road,Kothakota",509381,237,46,NIL,109,168,6,Nil,"4,87,929.80"
+195,"B.W.W.F Dispensary, Kothapalli",TELANGANA,Karimnagar,"B.W.W.F Dispensary
+H.NO 8-53 (OLD PHC)
+Kothapalli Haveli ",505451,500,NIL,NIL,174,316,10,20,"2,09,642.53"
+196,"    B.W.W.F Dispensary,Musthabad",TELANGANA ,Rajanna sircilla,"    H.No. 13-1/1
+   Munnurukapu sangam,      opp post office, pothugal road, musthabad
+      Sircilla",505404,259,Nil,NIL,97,157,5,NiL,"1,38,361"
+197,"B.W.W.F Dispensary, Nirmal ",TELANGANA ,Nirmal,"1-2-83/33-B, indiranagar, nirmal",504106,1036,Nill,Nill,474,505,57,200,"4,08,490"
+198,"B.W.W.F Dispensery, Nizamabad",TELANGANA ,Nizamabad,"H no: 3-4-67, kotagally, nizamabad - 503001",503001,470,Nil,Nil,173,273,24,300,"6,06,255"
+199,"    B.W.W.F Dispensary,Ramayampet",TELANGANA ,Medak,Medak,502101,794,Nil,NIL,287,468,39,Nil,"6,49,670"
+200,"B.W.W.F Dispensary, Siddipet ",TELANGANA ,Siddipet ,12-3-188 Moinpura ,502103,507,Nil,Nil,210,296,1,120,250132
+201,    B.W.W.F Dispensary Sircilla,TELANGANA , Rajanna sircilla,"BWWF Dispensary,  H.No. 8-3-7/1/A4, Siva Nagar,  Sircilla",505301,1205,Nil,NIL,631,515,59,NiL,1530893
+202,"Central Hospital,Nampally",TELANGANA ,Rajanna sircilla,"Central hospital for beedi workers,beside APSEB Sub-station,Nampally,Vemulawada Mandal,Rajanna sircilla (dt),Telangana.",505302,178,Nil,NIL,85,90,3,NiL,392029.92
+203,"B.W.W.F Dispensary,Warangal ",TELANGANA ,Warangal ,"H.No 17-2-639,Karimabad",506002,626,Nil,Nil,214,392,20,85,314000
+204,"Cine Workers Welfare Fund Dispensary, Hyderabad ",TELANGANA ,Hyderabad ,"H.No.4-3-229/D/89/2, Road No. 11, Gayatri Hills Road, Venkatagiri, Jubli Hills",500045,385,581,0,534,402,30,Nil,149800
+205,SCMMU Gauripur,Assam,Dhubri,"Ward No 4 Kalabagan, Gauripur ",783331,0,281,Nil,80,201,Nil,Nil,"Rs1,10,000/-"
+206,SCMMU Agartala,Tripura,West Tripura,"Dashmi Ghat JoynagarRoad No 6, Agartala",799001,0,206,Nil,89,117,Nil,Nil,"Rs 1,07,000/"
