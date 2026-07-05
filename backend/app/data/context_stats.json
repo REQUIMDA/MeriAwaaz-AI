@@ -1,0 +1,721 @@
+{
+  "pfms_scheme_expenditure": [
+    {
+      "scheme": "INNOVATION, TECHNOLOGY DEVELOPMENT AND DEPLOYMENT",
+      "scheme_financial_year": "Total",
+      "amount_inr": 22087332506.0
+    },
+    {
+      "scheme": "INNOVATION, TECHNOLOGY DEVELOPMENT AND DEPLOYMENT",
+      "scheme_financial_year": "2018-19",
+      "amount_inr": 7696581590.0
+    },
+    {
+      "scheme": "INNOVATION, TECHNOLOGY DEVELOPMENT AND DEPLOYMENT",
+      "scheme_financial_year": "2019-20",
+      "amount_inr": 8097814039.0
+    },
+    {
+      "scheme": "INNOVATION, TECHNOLOGY DEVELOPMENT AND DEPLOYMENT",
+      "scheme_financial_year": "2020-21",
+      "amount_inr": 6292936877.0
+    },
+    {
+      "scheme": "NATIONAL MISSION ON INTERDISCIPLINARY CYBER PHYSICAL SYSTEMS",
+      "scheme_financial_year": "Total",
+      "amount_inr": 3929623299.0
+    },
+    {
+      "scheme": "NATIONAL MISSION ON INTERDISCIPLINARY CYBER PHYSICAL SYSTEMS",
+      "scheme_financial_year": "2018-19",
+      "amount_inr": 100000.0
+    },
+    {
+      "scheme": "NATIONAL MISSION ON INTERDISCIPLINARY CYBER PHYSICAL SYSTEMS",
+      "scheme_financial_year": "2019-20",
+      "amount_inr": 1227932817.0
+    },
+    {
+      "scheme": "NATIONAL MISSION ON INTERDISCIPLINARY CYBER PHYSICAL SYSTEMS",
+      "scheme_financial_year": "2020-21",
+      "amount_inr": 2701590482.0
+    },
+    {
+      "scheme": "RESEARCH AND DEVELOPMENT (DST)",
+      "scheme_financial_year": "Total",
+      "amount_inr": 13796061321.0
+    },
+    {
+      "scheme": "RESEARCH AND DEVELOPMENT (DST)",
+      "scheme_financial_year": "2018-19",
+      "amount_inr": 4258746826.0
+    },
+    {
+      "scheme": "RESEARCH AND DEVELOPMENT (DST)",
+      "scheme_financial_year": "2019-20",
+      "amount_inr": 5587483735.0
+    },
+    {
+      "scheme": "RESEARCH AND DEVELOPMENT (DST)",
+      "scheme_financial_year": "2020-21",
+      "amount_inr": 3949830760.0
+    },
+    {
+      "scheme": "Science and Technology Institutional and Human Capacity Building",
+      "scheme_financial_year": "Total",
+      "amount_inr": 30023581470.0
+    },
+    {
+      "scheme": "Science and Technology Institutional and Human Capacity Building",
+      "scheme_financial_year": "2018-19",
+      "amount_inr": 10154143908.0
+    },
+    {
+      "scheme": "Science and Technology Institutional and Human Capacity Building",
+      "scheme_financial_year": "2019-20",
+      "amount_inr": 10868893021.0
+    },
+    {
+      "scheme": "Science and Technology Institutional and Human Capacity Building",
+      "scheme_financial_year": "2020-21",
+      "amount_inr": 9000544541.0
+    },
+    {
+      "scheme": "Grand Total",
+      "scheme_financial_year": "Grand Total",
+      "amount_inr": 69836598596.0
+    }
+  ],
+  "forest_officer_training": [
+    {
+      "s_no": 1.0,
+      "name_of_the_institute": "Institute of Wood Science and Technology, Bangalore",
+      "themes_topics": "Advances in Wood Production and Utilization",
+      "duration_of_the_course_in_year_2022_2023": "18/04/2022 To 22/04/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 37,
+      "no_of_officers_participated_in_year_2022_2023": 14,
+      "percentage_of_participated_officers_in_year_2022_2023": 37.84
+    },
+    {
+      "s_no": 2.0,
+      "name_of_the_institute": "Wildlife Institute of India (WII), Dehradun",
+      "themes_topics": "Addressing challenges and managing human-wildlife conflict in India",
+      "duration_of_the_course_in_year_2022_2023": "16/05/2022 To 20/05/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 36,
+      "no_of_officers_participated_in_year_2022_2023": 16,
+      "percentage_of_participated_officers_in_year_2022_2023": 44.44
+    },
+    {
+      "s_no": 3.0,
+      "name_of_the_institute": "Dr. R.S. Tolia, Uttarakhand Academy of Administration, Nainital",
+      "themes_topics": "Good Governance",
+      "duration_of_the_course_in_year_2022_2023": "16/05/2022 To 20/05/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 48,
+      "no_of_officers_participated_in_year_2022_2023": 22,
+      "percentage_of_participated_officers_in_year_2022_2023": 45.83
+    },
+    {
+      "s_no": 4.0,
+      "name_of_the_institute": "Indian Institute of Bio-Social Research and Development, Kolkata",
+      "themes_topics": "Integrated forest mosaic landscape management for sustainable tribal development",
+      "duration_of_the_course_in_year_2022_2023": "23/05/2022 To 27/05/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 38,
+      "no_of_officers_participated_in_year_2022_2023": 10,
+      "percentage_of_participated_officers_in_year_2022_2023": 26.32
+    },
+    {
+      "s_no": 5.0,
+      "name_of_the_institute": "Indian Institute of Public Administration (IIPA), New Delhi",
+      "themes_topics": "Concurrent Monitoring & evaluation of schemes - responsibilities of implementing officers",
+      "duration_of_the_course_in_year_2022_2023": "23/05/2022 To 27/05/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 42,
+      "no_of_officers_participated_in_year_2022_2023": 12,
+      "percentage_of_participated_officers_in_year_2022_2023": 28.57
+    },
+    {
+      "s_no": 6.0,
+      "name_of_the_institute": "Jungle Lodges and Resorts Limited, Bangalore",
+      "themes_topics": "Ecotourism vis-a-vis Conservation of Forests",
+      "duration_of_the_course_in_year_2022_2023": "06/06/2022 To 10/06/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 39,
+      "no_of_officers_participated_in_year_2022_2023": 30,
+      "percentage_of_participated_officers_in_year_2022_2023": 76.92
+    },
+    {
+      "s_no": 7.0,
+      "name_of_the_institute": "Himalayan Forest Research Institute (HFRI), Shimla",
+      "themes_topics": "Insect pest management in forest nurseries, plantation and natural forests",
+      "duration_of_the_course_in_year_2022_2023": "06/06/2022 To 10/06/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 46,
+      "no_of_officers_participated_in_year_2022_2023": 22,
+      "percentage_of_participated_officers_in_year_2022_2023": 47.83
+    },
+    {
+      "s_no": 8.0,
+      "name_of_the_institute": "The ICFAI Law School, Hyderabad",
+      "themes_topics": "Intellectual Property Rights and WTO Accountability - Scope of Patenting",
+      "duration_of_the_course_in_year_2022_2023": "06/06/2022 To 10/06/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 40,
+      "no_of_officers_participated_in_year_2022_2023": 13,
+      "percentage_of_participated_officers_in_year_2022_2023": 32.5
+    },
+    {
+      "s_no": 9.0,
+      "name_of_the_institute": "Administrative Training Institute (ATI), Kolkata",
+      "themes_topics": "Effective Leadership & Conflict Resolution",
+      "duration_of_the_course_in_year_2022_2023": "13/06/2022 To 17/06/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 38,
+      "no_of_officers_participated_in_year_2022_2023": 11,
+      "percentage_of_participated_officers_in_year_2022_2023": 28.95
+    },
+    {
+      "s_no": 10.0,
+      "name_of_the_institute": "The Energy and Resources Institute (TERI), New Delhi",
+      "themes_topics": "Significance and scope of REDD/REDD+ for India's forests",
+      "duration_of_the_course_in_year_2022_2023": "13/06/2022 To 15/06/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 41,
+      "no_of_officers_participated_in_year_2022_2023": 23,
+      "percentage_of_participated_officers_in_year_2022_2023": 56.1
+    },
+    {
+      "s_no": 11.0,
+      "name_of_the_institute": "O.P. Jindal Institute of Leadership Development and Executive Education, Sonipat, Haryana",
+      "themes_topics": "Public Policy & Governance",
+      "duration_of_the_course_in_year_2022_2023": "20/06/2022 To 24/06/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 36,
+      "no_of_officers_participated_in_year_2022_2023": 12,
+      "percentage_of_participated_officers_in_year_2022_2023": 33.33
+    },
+    {
+      "s_no": 12.0,
+      "name_of_the_institute": "Indian Institute of Forest Management, Bhopal",
+      "themes_topics": "Forests and Climate Change: Opportunities and Challenges of Adaptation and Mitigation",
+      "duration_of_the_course_in_year_2022_2023": "21/06/2022 To 23/06/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 41,
+      "no_of_officers_participated_in_year_2022_2023": 14,
+      "percentage_of_participated_officers_in_year_2022_2023": 34.15
+    },
+    {
+      "s_no": 13.0,
+      "name_of_the_institute": "Institute of Forest Genetics and Tree Breeding, Coimbatore",
+      "themes_topics": "Forest Genetic Resource Management",
+      "duration_of_the_course_in_year_2022_2023": "04/07/2022 To 08/07/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 36,
+      "no_of_officers_participated_in_year_2022_2023": 15,
+      "percentage_of_participated_officers_in_year_2022_2023": 41.67
+    },
+    {
+      "s_no": 14.0,
+      "name_of_the_institute": "IORA Ecological Solutions Pvt. Ltd. New Delhi",
+      "themes_topics": "Significance and scope of REDD+/REDD+ for Indian forest",
+      "duration_of_the_course_in_year_2022_2023": "11/07/2022 To 15/07/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 43,
+      "no_of_officers_participated_in_year_2022_2023": 19,
+      "percentage_of_participated_officers_in_year_2022_2023": 44.19
+    },
+    {
+      "s_no": 15.0,
+      "name_of_the_institute": "Indian Institute of Forest Management, Bhopal",
+      "themes_topics": "Forest ecosystem valuation and green GDP",
+      "duration_of_the_course_in_year_2022_2023": "18/07/2022 To 22/07/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 43,
+      "no_of_officers_participated_in_year_2022_2023": 14,
+      "percentage_of_participated_officers_in_year_2022_2023": 32.56
+    },
+    {
+      "s_no": 16.0,
+      "name_of_the_institute": "VYAKTI VIKAS KENDRA, Art of Living, Bengaluru",
+      "themes_topics": "Building Competencies for Personal Excellence",
+      "duration_of_the_course_in_year_2022_2023": "18/07/2022 To 20/07/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 46,
+      "no_of_officers_participated_in_year_2022_2023": 19,
+      "percentage_of_participated_officers_in_year_2022_2023": 41.3
+    },
+    {
+      "s_no": 17.0,
+      "name_of_the_institute": "ENgineering Staff College of India (ESCI), Hyderabad",
+      "themes_topics": "Application of modern it techniques including use of GIS in combination with remote sensing, use of drones, etc.",
+      "duration_of_the_course_in_year_2022_2023": "18/07/2022 To 20/07/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 39,
+      "no_of_officers_participated_in_year_2022_2023": 16,
+      "percentage_of_participated_officers_in_year_2022_2023": 41.03
+    },
+    {
+      "s_no": 18.0,
+      "name_of_the_institute": "Indian Plywood Industries Research & Training Institute (IPIRTI), Bangalore",
+      "themes_topics": "Advances in Wood Production and Utilization",
+      "duration_of_the_course_in_year_2022_2023": "01/08/2022 To 03/08/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 40,
+      "no_of_officers_participated_in_year_2022_2023": 11,
+      "percentage_of_participated_officers_in_year_2022_2023": 27.5
+    },
+    {
+      "s_no": 19.0,
+      "name_of_the_institute": "Forest Research Instiute (FRI), Dehradun",
+      "themes_topics": "Forest Fire Monitoring and Damage Assessment",
+      "duration_of_the_course_in_year_2022_2023": "01/08/2022 To 05/08/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 41,
+      "no_of_officers_participated_in_year_2022_2023": 23,
+      "percentage_of_participated_officers_in_year_2022_2023": 56.1
+    },
+    {
+      "s_no": 20.0,
+      "name_of_the_institute": "The West Bengal National University of Juridical Sciences, Kolkata",
+      "themes_topics": "Legal framework on wetland management and conservation in India",
+      "duration_of_the_course_in_year_2022_2023": "01/08/2022 To 05/08/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 37,
+      "no_of_officers_participated_in_year_2022_2023": 13,
+      "percentage_of_participated_officers_in_year_2022_2023": 35.14
+    },
+    {
+      "s_no": 21.0,
+      "name_of_the_institute": "Institute of Wood Science and Technology, Bangalore",
+      "themes_topics": "Integrated pest and disease management in nurseries, plantation and forest",
+      "duration_of_the_course_in_year_2022_2023": "03/08/2022 To 05/08/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 39,
+      "no_of_officers_participated_in_year_2022_2023": 19,
+      "percentage_of_participated_officers_in_year_2022_2023": 48.72
+    },
+    {
+      "s_no": 22.0,
+      "name_of_the_institute": "Indian Institute of Remote Sensing (IIRS), Dehradun",
+      "themes_topics": "Advances in RS, GIS and GNSS applications in forestry",
+      "duration_of_the_course_in_year_2022_2023": "22/08/2022 To 26/08/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 39,
+      "no_of_officers_participated_in_year_2022_2023": 0,
+      "percentage_of_participated_officers_in_year_2022_2023": 0.0
+    },
+    {
+      "s_no": 23.0,
+      "name_of_the_institute": "Bankers Institute of Rural Development (BIRD),Lucknow",
+      "themes_topics": "Rural Financing and Climate Change",
+      "duration_of_the_course_in_year_2022_2023": "22/08/2022 To 26/08/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 42,
+      "no_of_officers_participated_in_year_2022_2023": 16,
+      "percentage_of_participated_officers_in_year_2022_2023": 38.1
+    },
+    {
+      "s_no": 24.0,
+      "name_of_the_institute": "Gujarat Environment Management Institute (GEMI), Gujarat",
+      "themes_topics": "ENVIRONMENTAL Methods for Water Quality Restoration",
+      "duration_of_the_course_in_year_2022_2023": "05/09/2022 To 09/09/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 41,
+      "no_of_officers_participated_in_year_2022_2023": 25,
+      "percentage_of_participated_officers_in_year_2022_2023": 60.98
+    },
+    {
+      "s_no": 25.0,
+      "name_of_the_institute": "Institute of Forest Productivity (IFP), Ranchi",
+      "themes_topics": "Livelihood Enhancement Strategies in Forest Fringe Villages",
+      "duration_of_the_course_in_year_2022_2023": "12/09/2022 To 16/09/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 43,
+      "no_of_officers_participated_in_year_2022_2023": 15,
+      "percentage_of_participated_officers_in_year_2022_2023": 34.88
+    },
+    {
+      "s_no": 26.0,
+      "name_of_the_institute": "Forest Survey of India (FSI), Dehradun",
+      "themes_topics": "GIS Based Monitoring of CAMPA Activities",
+      "duration_of_the_course_in_year_2022_2023": "13/09/2022 To 15/09/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 39,
+      "no_of_officers_participated_in_year_2022_2023": 17,
+      "percentage_of_participated_officers_in_year_2022_2023": 43.59
+    },
+    {
+      "s_no": 27.0,
+      "name_of_the_institute": "Jungle Lodges and Resorts Limited, Bangalore",
+      "themes_topics": "Eco-Tourism Assessment & Development",
+      "duration_of_the_course_in_year_2022_2023": "19/09/2022 To 23/09/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 35,
+      "no_of_officers_participated_in_year_2022_2023": 25,
+      "percentage_of_participated_officers_in_year_2022_2023": 71.43
+    },
+    {
+      "s_no": 28.0,
+      "name_of_the_institute": "Goa Institute of Training & Studies (GITS), Goa",
+      "themes_topics": "Stress Management & work-life balance strategies",
+      "duration_of_the_course_in_year_2022_2023": "19/09/2022 To 23/09/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 38,
+      "no_of_officers_participated_in_year_2022_2023": 25,
+      "percentage_of_participated_officers_in_year_2022_2023": 65.79
+    },
+    {
+      "s_no": 29.0,
+      "name_of_the_institute": "Amity University, Noida",
+      "themes_topics": "Forest based Handicrafts and International Trade",
+      "duration_of_the_course_in_year_2022_2023": "26/09/2022 To 30/09/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 41,
+      "no_of_officers_participated_in_year_2022_2023": 20,
+      "percentage_of_participated_officers_in_year_2022_2023": 48.78
+    },
+    {
+      "s_no": 30.0,
+      "name_of_the_institute": "Shri Mata Vaishno Devi University, Katra",
+      "themes_topics": "Team work competencies for high performances",
+      "duration_of_the_course_in_year_2022_2023": "10/10/2022 To 14/10/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 44,
+      "no_of_officers_participated_in_year_2022_2023": 20,
+      "percentage_of_participated_officers_in_year_2022_2023": 45.45
+    },
+    {
+      "s_no": 31.0,
+      "name_of_the_institute": "Chandrapur Forest Academy of Administration, Development Research & Management Academy Chandrapur, Maharashtra",
+      "themes_topics": "Best Practices of human & wildlife conflict mitigation & damage control",
+      "duration_of_the_course_in_year_2022_2023": "11/10/2022 To 13/10/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 40,
+      "no_of_officers_participated_in_year_2022_2023": 22,
+      "percentage_of_participated_officers_in_year_2022_2023": 55.0
+    },
+    {
+      "s_no": 32.0,
+      "name_of_the_institute": "Indira Gandhi National Forest Academy, Dehradun",
+      "themes_topics": "Best Practices in Forestry",
+      "duration_of_the_course_in_year_2022_2023": "17/10/2022 To 21/10/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 36,
+      "no_of_officers_participated_in_year_2022_2023": 19,
+      "percentage_of_participated_officers_in_year_2022_2023": 52.78
+    },
+    {
+      "s_no": 33.0,
+      "name_of_the_institute": "The Energy and Resources Institute (TERI), New Delhi",
+      "themes_topics": "Forest and Climate Change: Opportunities and Challenges of Adaptation and Mitigation",
+      "duration_of_the_course_in_year_2022_2023": "17/10/2022 To 21/10/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 39,
+      "no_of_officers_participated_in_year_2022_2023": 15,
+      "percentage_of_participated_officers_in_year_2022_2023": 38.46
+    },
+    {
+      "s_no": 34.0,
+      "name_of_the_institute": "Kerala Forest Research Institute (KFRI), Peechi",
+      "themes_topics": "Conservation and Development of Medicinal Plants and benefit sharing with local communities",
+      "duration_of_the_course_in_year_2022_2023": "17/10/2022 To 21/10/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 45,
+      "no_of_officers_participated_in_year_2022_2023": 24,
+      "percentage_of_participated_officers_in_year_2022_2023": 53.33
+    },
+    {
+      "s_no": 35.0,
+      "name_of_the_institute": "XIM University, Bhubaneswar",
+      "themes_topics": "Art of Interacting with Print and Electronic Media",
+      "duration_of_the_course_in_year_2022_2023": "07/11/2022 To 11/11/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 37,
+      "no_of_officers_participated_in_year_2022_2023": 11,
+      "percentage_of_participated_officers_in_year_2022_2023": 29.73
+    },
+    {
+      "s_no": 36.0,
+      "name_of_the_institute": "Indira Gandhi National Forest Academy, Dehradun",
+      "themes_topics": "Regaining global leadership in forest sector developments : Lessons from a round the world",
+      "duration_of_the_course_in_year_2022_2023": "08/11/2022 To 10/11/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 39,
+      "no_of_officers_participated_in_year_2022_2023": 16,
+      "percentage_of_participated_officers_in_year_2022_2023": 41.03
+    },
+    {
+      "s_no": 37.0,
+      "name_of_the_institute": "Om Shanti Retreat Centre, Prajapita Brahma Kumaris Ishwariya Vishwa Vidyalaya, Gurgaon",
+      "themes_topics": "The Motivation Mantras",
+      "duration_of_the_course_in_year_2022_2023": "09/11/2022 To 11/11/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 42,
+      "no_of_officers_participated_in_year_2022_2023": 11,
+      "percentage_of_participated_officers_in_year_2022_2023": 26.19
+    },
+    {
+      "s_no": 38.0,
+      "name_of_the_institute": "Centre for Training & Management of Soil, Water & Forests, Kanpur",
+      "themes_topics": "Water Conservation and Rain Water Harvesting",
+      "duration_of_the_course_in_year_2022_2023": "14/11/2022 To 16/11/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 39,
+      "no_of_officers_participated_in_year_2022_2023": 21,
+      "percentage_of_participated_officers_in_year_2022_2023": 53.85
+    },
+    {
+      "s_no": 39.0,
+      "name_of_the_institute": "Rain Forest Research Institute (RFRI), Jorhat",
+      "themes_topics": "Bamboo Resource Development for addressing Livelihood Concerns of Communities",
+      "duration_of_the_course_in_year_2022_2023": "14/11/2022 To 18/11/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 40,
+      "no_of_officers_participated_in_year_2022_2023": 20,
+      "percentage_of_participated_officers_in_year_2022_2023": 50.0
+    },
+    {
+      "s_no": 40.0,
+      "name_of_the_institute": "Goa Institute of Training & Studies (GITS), Goa",
+      "themes_topics": "Communication and Presentation Skills",
+      "duration_of_the_course_in_year_2022_2023": "14/11/2022 To 18/11/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 55,
+      "no_of_officers_participated_in_year_2022_2023": 41,
+      "percentage_of_participated_officers_in_year_2022_2023": 74.55
+    },
+    {
+      "s_no": 41.0,
+      "name_of_the_institute": "VYAKTI VIKAS KENDRA, Art of Living, Bengaluru",
+      "themes_topics": "Building Competencies for Personal Excellence",
+      "duration_of_the_course_in_year_2022_2023": "14/11/2022 To 18/11/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 43,
+      "no_of_officers_participated_in_year_2022_2023": 19,
+      "percentage_of_participated_officers_in_year_2022_2023": 44.19
+    },
+    {
+      "s_no": 42.0,
+      "name_of_the_institute": "Amity University, Noida",
+      "themes_topics": "Contribution of Forests Plantation in Livelihood Support and Industrial Production",
+      "duration_of_the_course_in_year_2022_2023": "16/11/2022 To 18/11/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 37,
+      "no_of_officers_participated_in_year_2022_2023": 19,
+      "percentage_of_participated_officers_in_year_2022_2023": 51.35
+    },
+    {
+      "s_no": 43.0,
+      "name_of_the_institute": "Mahatma Gandhi Institute of Rural Energy & Development (MGIRED), Bangalore",
+      "themes_topics": "Alternate energy sources, water conservation and solid waste management",
+      "duration_of_the_course_in_year_2022_2023": "21/11/2022 To 25/11/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 37,
+      "no_of_officers_participated_in_year_2022_2023": 16,
+      "percentage_of_participated_officers_in_year_2022_2023": 43.24
+    },
+    {
+      "s_no": 44.0,
+      "name_of_the_institute": "National Law School of India University (NLSIU), Bangalore",
+      "themes_topics": "Environmental Law, benefit sharing and forest governance",
+      "duration_of_the_course_in_year_2022_2023": "05/12/2022 To 09/12/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 34,
+      "no_of_officers_participated_in_year_2022_2023": 17,
+      "percentage_of_participated_officers_in_year_2022_2023": 50.0
+    },
+    {
+      "s_no": 45.0,
+      "name_of_the_institute": "Chandrapur Forest Academy of Administration, Development Research & Management Academy Chandrapur, Maharashtra",
+      "themes_topics": "Eco-Tourism in wildlife & habitat management",
+      "duration_of_the_course_in_year_2022_2023": "05/12/2022 To 09/12/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 43,
+      "no_of_officers_participated_in_year_2022_2023": 18,
+      "percentage_of_participated_officers_in_year_2022_2023": 41.86
+    },
+    {
+      "s_no": 46.0,
+      "name_of_the_institute": "Wildlife Institute of India (WII), Dehradun",
+      "themes_topics": "INTERNATIONAL CONVENTIONS and their synergies with respect to climate change, forestry, wildlife and biodiversity conservation",
+      "duration_of_the_course_in_year_2022_2023": "07/12/2022 To 09/12/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 38,
+      "no_of_officers_participated_in_year_2022_2023": 12,
+      "percentage_of_participated_officers_in_year_2022_2023": 31.58
+    },
+    {
+      "s_no": 47.0,
+      "name_of_the_institute": "Arid Forest Research Institute (AFRI), Jodhpur",
+      "themes_topics": "Integrated Approach for Sustainable Development of Fragile Desert Eco System",
+      "duration_of_the_course_in_year_2022_2023": "12/12/2022 To 16/12/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 39,
+      "no_of_officers_participated_in_year_2022_2023": 19,
+      "percentage_of_participated_officers_in_year_2022_2023": 48.72
+    },
+    {
+      "s_no": 48.0,
+      "name_of_the_institute": "SAlim Ali Centre for Ornithology and Natural History (SACON), Coimbatore",
+      "themes_topics": "Monitoring and Management of Wetland",
+      "duration_of_the_course_in_year_2022_2023": "13/12/2022 To 15/12/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 43,
+      "no_of_officers_participated_in_year_2022_2023": 23,
+      "percentage_of_participated_officers_in_year_2022_2023": 53.49
+    },
+    {
+      "s_no": 49.0,
+      "name_of_the_institute": "COllege of Veterinary Science, Assam Agricultural University, Guwahati",
+      "themes_topics": "Importance of Forensics: Wild Animal Conservation and Prevention of Wildlife crime",
+      "duration_of_the_course_in_year_2022_2023": "19/12/2022 To 23/12/2022",
+      "no_of_officers_nominated_in_year_2022_2023": 33,
+      "no_of_officers_participated_in_year_2022_2023": 16,
+      "percentage_of_participated_officers_in_year_2022_2023": 48.48
+    },
+    {
+      "s_no": 50.0,
+      "name_of_the_institute": "Indian Plywood Industries Research & Training Institute (IPIRTI), Bangalore",
+      "themes_topics": "Bamboo/Wood Resource Development and Value Addition for Sustained Livelihood",
+      "duration_of_the_course_in_year_2022_2023": "09/01/2023 To 13/01/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 0,
+      "no_of_officers_participated_in_year_2022_2023": 0,
+      "percentage_of_participated_officers_in_year_2022_2023": 0.0
+    },
+    {
+      "s_no": 51.0,
+      "name_of_the_institute": "Tropical Forest Research Institute, Jabalpur",
+      "themes_topics": "Agroforestry & its management for livelihood security",
+      "duration_of_the_course_in_year_2022_2023": "10/01/2023 To 12/01/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 40,
+      "no_of_officers_participated_in_year_2022_2023": 11,
+      "percentage_of_participated_officers_in_year_2022_2023": 27.5
+    },
+    {
+      "s_no": 52.0,
+      "name_of_the_institute": "Rain Forest Research Institute (RFRI), Jorhat",
+      "themes_topics": "Role of Forestry in Sustainable Development of People",
+      "duration_of_the_course_in_year_2022_2023": "10/01/2023 To 11/01/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 5,
+      "no_of_officers_participated_in_year_2022_2023": 5,
+      "percentage_of_participated_officers_in_year_2022_2023": 100.0
+    },
+    {
+      "s_no": 53.0,
+      "name_of_the_institute": "Rain Forest Research Institute (RFRI), Jorhat",
+      "themes_topics": "Role of Forestry in Sustainable Development of People",
+      "duration_of_the_course_in_year_2022_2023": "10/01/2023 To 12/01/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 36,
+      "no_of_officers_participated_in_year_2022_2023": 16,
+      "percentage_of_participated_officers_in_year_2022_2023": 44.44
+    },
+    {
+      "s_no": 54.0,
+      "name_of_the_institute": "Indian Institute of Forest Management, Bhopal",
+      "themes_topics": "Forest Certification in Indian Context",
+      "duration_of_the_course_in_year_2022_2023": "16/01/2023 To 20/01/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 39,
+      "no_of_officers_participated_in_year_2022_2023": 11,
+      "percentage_of_participated_officers_in_year_2022_2023": 28.21
+    },
+    {
+      "s_no": 55.0,
+      "name_of_the_institute": "UPES School of Laws, Dehradun",
+      "themes_topics": "Wildlife and FC Act",
+      "duration_of_the_course_in_year_2022_2023": "16/01/2023 To 20/01/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 0,
+      "no_of_officers_participated_in_year_2022_2023": 0,
+      "percentage_of_participated_officers_in_year_2022_2023": 0.0
+    },
+    {
+      "s_no": 56.0,
+      "name_of_the_institute": "Forest Research Instiute (FRI), Dehradun",
+      "themes_topics": "Urban forestry - concept to increase the green cover and biodiversity",
+      "duration_of_the_course_in_year_2022_2023": "23/01/2023 To 25/01/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 42,
+      "no_of_officers_participated_in_year_2022_2023": 17,
+      "percentage_of_participated_officers_in_year_2022_2023": 40.48
+    },
+    {
+      "s_no": 57.0,
+      "name_of_the_institute": "Wildlife Institute of India (WII), Dehradun",
+      "themes_topics": "Management of Coastal and Marine Biodiversity in India: Challenges and Prospect",
+      "duration_of_the_course_in_year_2022_2023": "06/02/2023 To 10/02/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 38,
+      "no_of_officers_participated_in_year_2022_2023": 30,
+      "percentage_of_participated_officers_in_year_2022_2023": 78.95
+    },
+    {
+      "s_no": 58.0,
+      "name_of_the_institute": "Centre for Forest and Natural Resource Management Studies (CEFNARM), Dullapally, Hyderabad",
+      "themes_topics": "Haritha haram- initiation of improving & intending green cover outside the RF & development of urban forest blocks",
+      "duration_of_the_course_in_year_2022_2023": "06/02/2023 To 10/02/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 35,
+      "no_of_officers_participated_in_year_2022_2023": 16,
+      "percentage_of_participated_officers_in_year_2022_2023": 45.71
+    },
+    {
+      "s_no": 59.0,
+      "name_of_the_institute": "NAgaland State Biodiversity Board (NSBB), Kohima",
+      "themes_topics": "Community Reserve",
+      "duration_of_the_course_in_year_2022_2023": "06/02/2023 To 08/02/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 35,
+      "no_of_officers_participated_in_year_2022_2023": 0,
+      "percentage_of_participated_officers_in_year_2022_2023": 0.0
+    },
+    {
+      "s_no": 60.0,
+      "name_of_the_institute": "VYAKTI VIKAS KENDRA, Art of Living, Bengaluru",
+      "themes_topics": "Building Competencies for Personal Excellence",
+      "duration_of_the_course_in_year_2022_2023": "06/02/2023 To 10/02/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 36,
+      "no_of_officers_participated_in_year_2022_2023": 8,
+      "percentage_of_participated_officers_in_year_2022_2023": 22.22
+    },
+    {
+      "s_no": 61.0,
+      "name_of_the_institute": "Wildlife Crime Control Bureau (WCCB), New Delhi",
+      "themes_topics": "Wildlife Crime and Illegal Wildlife Trade",
+      "duration_of_the_course_in_year_2022_2023": "06/02/2023 To 08/02/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 35,
+      "no_of_officers_participated_in_year_2022_2023": 22,
+      "percentage_of_participated_officers_in_year_2022_2023": 62.86
+    },
+    {
+      "s_no": 62.0,
+      "name_of_the_institute": "G.B Pant Social Science Institute (GBPSSI), Prayagraj, UP",
+      "themes_topics": "Resources and livelihoods of adivasis in India: applicability of PESA and FRA act",
+      "duration_of_the_course_in_year_2022_2023": "06/02/2023 To 08/02/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 40,
+      "no_of_officers_participated_in_year_2022_2023": 13,
+      "percentage_of_participated_officers_in_year_2022_2023": 32.5
+    },
+    {
+      "s_no": 63.0,
+      "name_of_the_institute": "XIM University, Bhubaneswar",
+      "themes_topics": "Innovation management",
+      "duration_of_the_course_in_year_2022_2023": "06/02/2023 To 10/02/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 37,
+      "no_of_officers_participated_in_year_2022_2023": 0,
+      "percentage_of_participated_officers_in_year_2022_2023": 0.0
+    },
+    {
+      "s_no": 64.0,
+      "name_of_the_institute": "Institute of Wood Science and Technology, Bangalore",
+      "themes_topics": "Bamboo/Wood Resource Development and Value Addition for Sustained Livelihood",
+      "duration_of_the_course_in_year_2022_2023": "20/02/2023 To 24/02/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 32,
+      "no_of_officers_participated_in_year_2022_2023": 7,
+      "percentage_of_participated_officers_in_year_2022_2023": 21.88
+    },
+    {
+      "s_no": 65.0,
+      "name_of_the_institute": "Shri Mata Vaishno Devi University, Katra",
+      "themes_topics": "Disaster Management",
+      "duration_of_the_course_in_year_2022_2023": "22/02/2023 To 24/02/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 42,
+      "no_of_officers_participated_in_year_2022_2023": 13,
+      "percentage_of_participated_officers_in_year_2022_2023": 30.95
+    },
+    {
+      "s_no": 66.0,
+      "name_of_the_institute": "Goa Institute of Training & Studies (GITS), Goa",
+      "themes_topics": "Communication and Presentation Skills",
+      "duration_of_the_course_in_year_2022_2023": "22/02/2023 To 24/02/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 59,
+      "no_of_officers_participated_in_year_2022_2023": 26,
+      "percentage_of_participated_officers_in_year_2022_2023": 44.07
+    },
+    {
+      "s_no": 67.0,
+      "name_of_the_institute": "Foundation for Revitalization of Local Health Traditions (FRLHT), Bangalore",
+      "themes_topics": "Institute conservation models for Medicinal plants conservation",
+      "duration_of_the_course_in_year_2022_2023": "22/02/2023 To 24/02/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 42,
+      "no_of_officers_participated_in_year_2022_2023": 20,
+      "percentage_of_participated_officers_in_year_2022_2023": 47.62
+    },
+    {
+      "s_no": 68.0,
+      "name_of_the_institute": "Wildlife Crime Control Bureau (WCCB), New Delhi",
+      "themes_topics": "Wildlife Crime and Illegal Wildlife Trade",
+      "duration_of_the_course_in_year_2022_2023": "13/03/2023 To 17/03/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 41,
+      "no_of_officers_participated_in_year_2022_2023": 0,
+      "percentage_of_participated_officers_in_year_2022_2023": 0.0
+    },
+    {
+      "s_no": 69.0,
+      "name_of_the_institute": "Arun Jaitley National Institute of Financial Management, Faridabad",
+      "themes_topics": "Public Private Partnership",
+      "duration_of_the_course_in_year_2022_2023": "13/03/2023 To 15/03/2023",
+      "no_of_officers_nominated_in_year_2022_2023": 43,
+      "no_of_officers_participated_in_year_2022_2023": 0,
+      "percentage_of_participated_officers_in_year_2022_2023": 0.0
+    },
+    {
+      "s_no": NaN,
+      "name_of_the_institute": "OVERALL PERCENTAGE",
+      "themes_topics": NaN,
+      "duration_of_the_course_in_year_2022_2023": NaN,
+      "no_of_officers_nominated_in_year_2022_2023": 2644,
+      "no_of_officers_participated_in_year_2022_2023": 1085,
+      "percentage_of_participated_officers_in_year_2022_2023": 41.04
+    }
+  ]
+}

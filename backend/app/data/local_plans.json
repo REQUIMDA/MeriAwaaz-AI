@@ -1,0 +1,28 @@
+[
+  {
+    "plan_id": "plan_001",
+    "category": "Education",
+    "location": {
+      "village": "Rampur",
+      "block": "Sadar",
+      "district": "Nagpur"
+    },
+    "title": "Additional classroom block - Rampur Govt Primary School",
+    "estimated_cost_inr": 3500000,
+    "estimated_beneficiaries": 210,
+    "source": "mplads_pattern_handbuilt"
+  },
+  {
+    "plan_id": "plan_002",
+    "category": "Healthcare",
+    "location": {
+      "village": "Kesarpur",
+      "block": "North",
+      "district": "Nagpur"
+    },
+    "title": "Upgrade of Primary Health Sub-Centre - Kesarpur",
+    "estimated_cost_inr": 1800000,
+    "estimated_beneficiaries": 1450,
+    "source": "mplads_pattern_handbuilt"
+  }
+]
