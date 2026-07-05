@@ -1,11 +1,23 @@
+import uuid
+from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.schemas.models import ParsedIssue, Recommendation, ScoreBreakdown
-from app.services import database
+from app.schemas.models import AgentState, ParsedIssue, Recommendation, ScoreBreakdown
+from app.services import database, chroma_client
 from app.services.store import STORE
+
+# ---------------------------------------------------------------------------
+# Pipeline — defensive import (Kartik's supervisor.py may not be merged yet)
+# ---------------------------------------------------------------------------
+try:
+    from app.supervisor import build_workflow
+    _pipeline = build_workflow()
+    _PIPELINE_AVAILABLE = True
+except Exception:
+    _PIPELINE_AVAILABLE = False
 
 router = APIRouter()
 
@@ -76,8 +88,79 @@ def _build_recommendation(cluster_id: str) -> Optional[Recommendation]:
 
 
 # ---------------------------------------------------------------------------
-# Route
+# POST request model
 # ---------------------------------------------------------------------------
+
+class SubmissionRequest(BaseModel):
+    channel: str = "text"   # "text" | "voice" | "photo"
+    text: str = ""
+
+
+# ---------------------------------------------------------------------------
+# Routes
+# ---------------------------------------------------------------------------
+
+@router.post("/api/submissions")
+async def create_submission(req: SubmissionRequest):
+    """
+    Accept a citizen submission, run it through the 5-agent pipeline,
+    persist to SQLite and ChromaDB, and return the result.
+    """
+    sid = str(uuid.uuid4())
+    input_type = req.channel if req.channel in ("text", "voice", "photo", "dashboard_refresh") else "text"
+
+    recommendation = None
+    parsed_issue = None
+
+    if _PIPELINE_AVAILABLE and req.text:
+        state = AgentState(
+            submission_id=sid,
+            input_type=input_type,
+            raw_text=req.text,
+        )
+        result = _pipeline.invoke(state, config={"configurable": {"thread_id": sid}})
+
+        # Extract parsed issue and recommendation from pipeline result
+        if isinstance(result, dict):
+            pi = result.get("parsed_issue")
+            parsed_issue = pi if isinstance(pi, ParsedIssue) else None
+            rec = result.get("recommendation")
+            recommendation = rec if isinstance(rec, Recommendation) else None
+        else:
+            parsed_issue = getattr(result, "parsed_issue", None)
+            recommendation = getattr(result, "recommendation", None)
+
+    # Persist submission to SQLite
+    database.insert_submission({
+        "id": sid,
+        "created_at": datetime.utcnow().isoformat(),
+        "input_type": input_type,
+        "raw_text": req.text,
+        "category": parsed_issue.category if parsed_issue else None,
+        "location": parsed_issue.location if parsed_issue else None,
+        "summary": parsed_issue.summary if parsed_issue else None,
+        "confidence": parsed_issue.confidence if parsed_issue else None,
+        "language": parsed_issue.language if parsed_issue else None,
+        "cluster_id": recommendation.project_id if recommendation else None,
+    })
+
+    # Add to ChromaDB for future similarity search
+    if req.text:
+        chroma_client.add_submission(
+            submission_id=sid,
+            text=req.text,
+            metadata={
+                "category": parsed_issue.category if parsed_issue else "Other",
+                "location": parsed_issue.location if parsed_issue else "unspecified",
+            },
+        )
+
+    return {
+        "status": "processed" if _PIPELINE_AVAILABLE else "stored",
+        "submission_id": sid,
+        "recommendation": recommendation.model_dump() if recommendation else None,
+    }
+
 
 @router.get("/api/submissions/{submission_id}", response_model=SubmissionResponse)
 def get_submission(submission_id: str) -> SubmissionResponse:
