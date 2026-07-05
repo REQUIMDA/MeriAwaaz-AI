@@ -5,6 +5,7 @@ import sys
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 load_dotenv()
 
@@ -44,6 +45,11 @@ async def log_requests(request: Request, call_next):
     response = await call_next(request)
     logger.info("%s %s → %s", request.method, request.url.path, response.status_code)
     return response
+
+
+UPLOADS_DIR = Path(__file__).parent / "data" / "uploads"
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
 
 @app.on_event("startup")

@@ -63,11 +63,17 @@ class _Store:
                 "population_impact": min(pop / 15000, 1.0),
                 "cost_feasibility": max(0.0, 1.0 - cost / 10_000_000),
             })
+            bd = result["breakdown"]
             rec = Recommendation(
                 project_id=plan["plan_id"],
                 title=plan["title"],
-                priority_score=result["priority_score"],
-                breakdown=ScoreBreakdown(**result["breakdown"]),
+                priority_score=round(result["priority_score"] * 100, 2),
+                breakdown=ScoreBreakdown(
+                    citizen_demand=round(bd["citizen_demand"] * 100, 2),
+                    severity=round(bd["infrastructure_gap"] * 100, 2),
+                    population_impact=round(bd["population_impact"] * 100, 2),
+                    cost_feasibility=round(bd["cost_feasibility"] * 100, 2),
+                ),
                 is_existing_plan_project=True,
                 explanation=None,
             )

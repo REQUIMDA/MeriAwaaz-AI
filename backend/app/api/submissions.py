@@ -1,16 +1,20 @@
+import shutil
 import uuid
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from app.schemas.models import AgentState, ParsedIssue, Recommendation, ScoreBreakdown
 from app.services import database, chroma_client
 from app.services.store import STORE
 
+UPLOADS_DIR = Path(__file__).resolve().parent.parent / "data" / "uploads"
+
 # ---------------------------------------------------------------------------
-# Pipeline — defensive import (Kartik's supervisor.py may not be merged yet)
+# Pipeline — defensive import
 # ---------------------------------------------------------------------------
 try:
     from app.supervisor import build_workflow
@@ -37,6 +41,7 @@ class SubmissionResponse(BaseModel):
     confidence: Optional[float] = None
     language: Optional[str] = None
     cluster_id: Optional[str] = None
+    photo_url: Optional[str] = None
     parsed_issue: Optional[ParsedIssue] = None
     recommendation: Optional[Recommendation] = None
 
@@ -59,12 +64,10 @@ def _build_parsed_issue(sub: dict) -> Optional[ParsedIssue]:
 
 
 def _build_recommendation(cluster_id: str) -> Optional[Recommendation]:
-    # Attempt 1: in-memory store
     rec = STORE.get_recommendation(cluster_id)
     if rec is not None:
         return rec.model_copy(update={"explanation": None})
 
-    # Attempt 2: SQLite fallback
     row = database.get_recommendation(cluster_id)
     if row is None:
         return None
@@ -88,39 +91,55 @@ def _build_recommendation(cluster_id: str) -> Optional[Recommendation]:
 
 
 # ---------------------------------------------------------------------------
-# POST request model
-# ---------------------------------------------------------------------------
-
-class SubmissionRequest(BaseModel):
-    channel: str = "text"   # "text" | "voice" | "photo"
-    text: str = ""
-
-
-# ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
 
 @router.post("/api/submissions")
-async def create_submission(req: SubmissionRequest):
+async def create_submission(
+    channel: str = Form("text"),
+    text: str = Form(""),
+    photo: Optional[UploadFile] = File(None),
+):
     """
-    Accept a citizen submission, run it through the 5-agent pipeline,
+    Accept a citizen submission (text, voice, or photo), run the pipeline,
     persist to SQLite and ChromaDB, and return the result.
+
+    Send as multipart/form-data:
+      - channel: "text" | "voice" | "image"
+      - text: the citizen's message (empty for photo-only submissions)
+      - photo: image file (optional)
     """
     sid = str(uuid.uuid4())
-    input_type = req.channel if req.channel in ("text", "voice", "photo", "dashboard_refresh") else "text"
+
+    # Normalise channel → input_type understood by AgentState
+    channel_map = {"text": "text", "voice": "voice", "photo": "image", "image": "image"}
+    input_type = channel_map.get(channel, "text")
+
+    # Save uploaded photo to disk
+    photo_url: Optional[str] = None
+    saved_path: Optional[str] = None
+    if photo and photo.filename:
+        ext = Path(photo.filename).suffix.lower() or ".jpg"
+        filename = f"{sid}{ext}"
+        dest = UPLOADS_DIR / filename
+        UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+        with dest.open("wb") as f:
+            shutil.copyfileobj(photo.file, f)
+        photo_url = f"/uploads/{filename}"
+        saved_path = str(dest)
 
     recommendation = None
     parsed_issue = None
 
-    if _PIPELINE_AVAILABLE and req.text:
+    if _PIPELINE_AVAILABLE:
         state = AgentState(
             submission_id=sid,
             input_type=input_type,
-            raw_text=req.text,
+            raw_text=text,
+            media_file_path=saved_path,
         )
         result = _pipeline.invoke(state, config={"configurable": {"thread_id": sid}})
 
-        # Extract parsed issue and recommendation from pipeline result
         if isinstance(result, dict):
             pi = result.get("parsed_issue")
             parsed_issue = pi if isinstance(pi, ParsedIssue) else None
@@ -130,34 +149,40 @@ async def create_submission(req: SubmissionRequest):
             parsed_issue = getattr(result, "parsed_issue", None)
             recommendation = getattr(result, "recommendation", None)
 
-    # Persist submission to SQLite
+    # Use the text that actually ran through the pipeline (vision agent may have
+    # replaced it with a description)
+    effective_text = text or (parsed_issue.summary if parsed_issue else "")
+
+    # Persist to SQLite
     database.insert_submission({
         "id": sid,
         "created_at": datetime.utcnow().isoformat(),
         "input_type": input_type,
-        "raw_text": req.text,
+        "raw_text": effective_text,
         "category": parsed_issue.category if parsed_issue else None,
         "location": parsed_issue.location if parsed_issue else None,
         "summary": parsed_issue.summary if parsed_issue else None,
         "confidence": parsed_issue.confidence if parsed_issue else None,
         "language": parsed_issue.language if parsed_issue else None,
         "cluster_id": recommendation.project_id if recommendation else None,
+        "photo_url": photo_url,
     })
 
     # Add to ChromaDB for future similarity search
-    if req.text:
-        chroma_client.add_submission(
-            submission_id=sid,
-            text=req.text,
-            metadata={
-                "category": parsed_issue.category if parsed_issue else "Other",
-                "location": parsed_issue.location if parsed_issue else "unspecified",
-            },
-        )
+    searchable_text = effective_text or "photo submission"
+    chroma_client.add_submission(
+        submission_id=sid,
+        text=searchable_text,
+        metadata={
+            "category": parsed_issue.category if parsed_issue else "Other",
+            "location": parsed_issue.location if parsed_issue else "unspecified",
+        },
+    )
 
     return {
         "status": "processed" if _PIPELINE_AVAILABLE else "stored",
         "submission_id": sid,
+        "photo_url": photo_url,
         "recommendation": recommendation.model_dump() if recommendation else None,
     }
 
@@ -165,8 +190,8 @@ async def create_submission(req: SubmissionRequest):
 @router.get("/api/submissions/{submission_id}", response_model=SubmissionResponse)
 def get_submission(submission_id: str) -> SubmissionResponse:
     """
-    Return the stored record for a submission, including the parsed issue
-    and the associated recommendation. explanation is always null here.
+    Return the stored record for a submission, including parsed issue,
+    recommendation, and photo URL if a photo was submitted.
     """
     sub = database.get_submission(submission_id)
     if sub is None:
@@ -190,6 +215,7 @@ def get_submission(submission_id: str) -> SubmissionResponse:
         confidence=sub.get("confidence"),
         language=sub.get("language"),
         cluster_id=cluster_id,
+        photo_url=sub.get("photo_url"),
         parsed_issue=parsed_issue,
         recommendation=recommendation,
     )
