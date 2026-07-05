@@ -2,13 +2,15 @@ import json
 import os
 from typing import Optional
 
-from app.schemas.models import FusedContext, Recommendation, ScoreBreakdown
+from app.schemas.models import FusedContext, Recommendation, ScoreBreakdown, ClusterResult
 
 
 class _Store:
     def __init__(self):
         self._contexts: dict[str, FusedContext] = {}
         self._recommendations: dict[str, Recommendation] = {}
+        self.clusters: dict[str, ClusterResult] = {}
+        self.cluster_submissions: dict[str, list[dict]] = {}
 
     def upsert_context(self, project_id: str, ctx: FusedContext) -> None:
         self._contexts[project_id] = ctx
@@ -34,25 +36,32 @@ class _Store:
 
     def load_local_plans(self, json_path: str) -> None:
         if not os.path.exists(json_path):
-            print(f"WARNING: local_plans.json not found at {json_path}, skipping.")
+            print(f"WARNING: {json_path} not found, skipping.")
             return
-
-        from app.services.need_scoring import score_plan_project
-        from app.tools.policy_tools import compute_priority_score
-
         with open(json_path) as f:
             plans = json.load(f)
-
         for plan in plans:
-            ctx = score_plan_project(plan)
+            pop = plan.get("estimated_beneficiaries", 0)
+            cost = plan.get("estimated_cost_inr") or 0
+            location = plan["location"]["village"] if isinstance(plan["location"], dict) else plan["location"]
+            ctx = FusedContext(
+                category=plan["category"],
+                location=location,
+                demand_count=0,
+                population_affected=pop,
+                estimated_cost_inr=cost,
+                data_confidence="synthetic",
+                severity_score=0.5,
+                category_specific_data={"title": plan["title"], "source": plan.get("source", "handbuilt")},
+                is_existing_plan_project=True,
+            )
             self.upsert_context(plan["plan_id"], ctx)
-
-            max_pop = 15000
+            from app.tools.policy_tools import compute_priority_score
             result = compute_priority_score.invoke({
                 "citizen_demand": 0.0,
-                "infrastructure_gap": ctx.severity_score,
-                "population_impact": min(ctx.population_affected / max_pop, 1.0),
-                "cost_feasibility": max(0.0, 1.0 - (ctx.estimated_cost_inr or 0) / 5_000_000),
+                "infrastructure_gap": 0.5,
+                "population_impact": min(pop / 15000, 1.0),
+                "cost_feasibility": max(0.0, 1.0 - cost / 10_000_000),
             })
             rec = Recommendation(
                 project_id=plan["plan_id"],
@@ -63,7 +72,6 @@ class _Store:
                 explanation=None,
             )
             self.upsert_recommendation(rec)
-
         print(f"Store: loaded {len(plans)} local plan projects.")
 
 
