@@ -88,9 +88,10 @@ class Recommendation(BaseModel):
 
 class AgentState(BaseModel):
     submission_id: str
-    input_type: Literal["text", "voice", "photo", "dashboard_refresh"]
+    input_type: Literal["text", "voice", "image", "video", "dashboard_refresh"]
     raw_text: str = ""
-    media_file_path: Optional[str] = None
+    media_file_path: Optional[str] = None   # path to image, video, or audio file on disk
+    audio_url: Optional[str] = None         # set by speech_processing; served as /uploads/{file}
 
     parsed_issue: Optional[ParsedIssue] = None
     cluster: Optional[ClusterResult] = None

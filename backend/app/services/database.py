@@ -32,7 +32,9 @@ def init_db() -> None:
             confidence REAL,
             language TEXT,
             cluster_id TEXT,
-            photo_url TEXT
+            photo_url TEXT,
+            video_url TEXT,
+            audio_url TEXT
         );
 
         CREATE TABLE IF NOT EXISTS clusters (
@@ -68,12 +70,17 @@ def init_db() -> None:
             created_at TEXT NOT NULL
         );
     """)
-    # Migration: add photo_url to existing databases that predate this column
-    try:
-        conn.execute("ALTER TABLE submissions ADD COLUMN photo_url TEXT")
-        conn.commit()
-    except Exception:
-        pass  # Column already exists
+    # Migrations: add new columns to existing databases
+    for col_sql in [
+        "ALTER TABLE submissions ADD COLUMN photo_url TEXT",
+        "ALTER TABLE submissions ADD COLUMN video_url TEXT",
+        "ALTER TABLE submissions ADD COLUMN audio_url TEXT",
+    ]:
+        try:
+            conn.execute(col_sql)
+            conn.commit()
+        except Exception:
+            pass  # Column already exists
     conn.close()
 
 
@@ -81,8 +88,10 @@ def insert_submission(sub: dict) -> None:
     conn = _connect()
     conn.execute("""
         INSERT OR IGNORE INTO submissions
-        (id, created_at, input_type, raw_text, category, location, summary, confidence, language, cluster_id, photo_url)
-        VALUES (:id, :created_at, :input_type, :raw_text, :category, :location, :summary, :confidence, :language, :cluster_id, :photo_url)
+        (id, created_at, input_type, raw_text, category, location, summary,
+         confidence, language, cluster_id, photo_url, video_url, audio_url)
+        VALUES (:id, :created_at, :input_type, :raw_text, :category, :location, :summary,
+                :confidence, :language, :cluster_id, :photo_url, :video_url, :audio_url)
     """, sub)
     conn.commit()
     conn.close()

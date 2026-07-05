@@ -16,8 +16,9 @@ from app.agents import (
 def route_intake(state: AgentState) -> str:
     """Deterministic — input_type is already known, no LLM call needed."""
     return {
-        "voice": "speech_processing_agent",
-        "image": "vision_processing_agent",
+        "voice":             "speech_processing_agent",
+        "image":             "vision_processing_agent",
+        "video":             "vision_processing_agent",   # video uses same vision node
         "dashboard_refresh": "demand_intelligence_agent",
     }.get(state.input_type, "citizen_intelligence_agent")  # default: text
 
@@ -25,11 +26,13 @@ def route_intake(state: AgentState) -> str:
 def build_workflow(checkpointer=None):
     graph = StateGraph(AgentState)
 
-    graph.add_node("citizen_intelligence_agent", citizen_intelligence_agent.run)
-    graph.add_node("demand_intelligence_agent", demand_intelligence_agent.run)
-    graph.add_node("knowledge_fusion_agent", knowledge_fusion_agent.run)
-    graph.add_node("policy_recommendation_agent", policy_recommendation_agent.run)
-    graph.add_node("explainability_agent", explainability_agent.run)
+    # Pass compiled agents directly — .run doesn't exist on CompiledStateGraph
+    # in langgraph 0.1.x. Plain .py modules (vision, speech) expose .run() functions.
+    graph.add_node("citizen_intelligence_agent", citizen_intelligence_agent)
+    graph.add_node("demand_intelligence_agent", demand_intelligence_agent)
+    graph.add_node("knowledge_fusion_agent", knowledge_fusion_agent)
+    graph.add_node("policy_recommendation_agent", policy_recommendation_agent)
+    graph.add_node("explainability_agent", explainability_agent)
     graph.add_node("vision_processing_agent", vision_processing.run)
     graph.add_node("speech_processing_agent", speech_processing.run)
 

@@ -42,6 +42,8 @@ class SubmissionResponse(BaseModel):
     language: Optional[str] = None
     cluster_id: Optional[str] = None
     photo_url: Optional[str] = None
+    video_url: Optional[str] = None
+    audio_url: Optional[str] = None
     parsed_issue: Optional[ParsedIssue] = None
     recommendation: Optional[Recommendation] = None
 
@@ -99,6 +101,7 @@ async def create_submission(
     channel: str = Form("text"),
     text: str = Form(""),
     photo: Optional[UploadFile] = File(None),
+    audio: Optional[UploadFile] = File(None),
 ):
     """
     Accept a citizen submission (text, voice, or photo), run the pipeline,
@@ -115,6 +118,8 @@ async def create_submission(
     channel_map = {"text": "text", "voice": "voice", "photo": "image", "image": "image"}
     input_type = channel_map.get(channel, "text")
 
+    UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
     # Save uploaded photo to disk
     photo_url: Optional[str] = None
     saved_path: Optional[str] = None
@@ -122,11 +127,21 @@ async def create_submission(
         ext = Path(photo.filename).suffix.lower() or ".jpg"
         filename = f"{sid}{ext}"
         dest = UPLOADS_DIR / filename
-        UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
         with dest.open("wb") as f:
             shutil.copyfileobj(photo.file, f)
         photo_url = f"/uploads/{filename}"
         saved_path = str(dest)
+
+    # Save uploaded audio to disk (voice submissions)
+    audio_url: Optional[str] = None
+    if audio and audio.filename and input_type == "voice":
+        ext = Path(audio.filename).suffix.lower() or ".mp3"
+        audio_filename = f"{sid}_audio{ext}"
+        audio_dest = UPLOADS_DIR / audio_filename
+        with audio_dest.open("wb") as f:
+            shutil.copyfileobj(audio.file, f)
+        audio_url = f"/uploads/{audio_filename}"
+        saved_path = str(audio_dest)   # voice agent reads from here
 
     recommendation = None
     parsed_issue = None
@@ -145,9 +160,14 @@ async def create_submission(
             parsed_issue = pi if isinstance(pi, ParsedIssue) else None
             rec = result.get("recommendation")
             recommendation = rec if isinstance(rec, Recommendation) else None
+            # speech_processing may set audio_url on the state
+            if not audio_url:
+                audio_url = result.get("audio_url")
         else:
             parsed_issue = getattr(result, "parsed_issue", None)
             recommendation = getattr(result, "recommendation", None)
+            if not audio_url:
+                audio_url = getattr(result, "audio_url", None)
 
     # Use the text that actually ran through the pipeline (vision agent may have
     # replaced it with a description)
@@ -166,6 +186,8 @@ async def create_submission(
         "language": parsed_issue.language if parsed_issue else None,
         "cluster_id": recommendation.project_id if recommendation else None,
         "photo_url": photo_url,
+        "video_url": None,
+        "audio_url": audio_url,
     })
 
     # Add to ChromaDB for future similarity search
@@ -183,6 +205,7 @@ async def create_submission(
         "status": "processed" if _PIPELINE_AVAILABLE else "stored",
         "submission_id": sid,
         "photo_url": photo_url,
+        "audio_url": audio_url,
         "recommendation": recommendation.model_dump() if recommendation else None,
     }
 
@@ -216,6 +239,8 @@ def get_submission(submission_id: str) -> SubmissionResponse:
         language=sub.get("language"),
         cluster_id=cluster_id,
         photo_url=sub.get("photo_url"),
+        video_url=sub.get("video_url"),
+        audio_url=sub.get("audio_url"),
         parsed_issue=parsed_issue,
         recommendation=recommendation,
     )

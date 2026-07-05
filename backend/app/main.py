@@ -17,6 +17,7 @@ from pathlib import Path
 
 from app.api.health import router as health_router
 from app.api.submissions import router as submissions_router
+from app.api.video import router as video_router
 from app.api.recommendations import router as recommendations_router
 from app.api.explain import router as explain_router
 from app.api.dashboard import router as dashboard_router
@@ -62,6 +63,7 @@ def on_startup():
 
 app.include_router(health_router)
 app.include_router(submissions_router)
+app.include_router(video_router)
 app.include_router(recommendations_router)
 app.include_router(explain_router)
 app.include_router(dashboard_router)
