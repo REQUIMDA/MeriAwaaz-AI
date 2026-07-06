@@ -17,7 +17,10 @@ import google.generativeai as genai
 from app.schemas.settings import settings
 
 COLLECTION_NAME = "citizen_submissions"
-EMBEDDING_MODEL = "models/text-embedding-004"
+# text-embedding-004 was shut down 2026-01-14 (404 from the API).
+# gemini-embedding-2 is Google's recommended replacement. The sentinel pattern
+# below auto-detects the model change and rebuilds the collection on restart.
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "models/gemini-embedding-2")
 
 
 # ---------------------------------------------------------------------------
@@ -117,7 +120,8 @@ def add_submission(submission_id: str, text: str, metadata: dict) -> None:
 
 def query_similar(text: str, category: str, top_k: int = 10) -> list[dict]:
     col = get_collection()
-    if col.count() == 0:
+    real_count = col.count() - 1  # subtract sentinel document
+    if real_count <= 0:
         return []
 
     # Use retrieval_query task type for the query embedding
@@ -130,7 +134,7 @@ def query_similar(text: str, category: str, top_k: int = 10) -> list[dict]:
 
     results = col.query(
         query_embeddings=[query_embedding],
-        n_results=min(top_k, col.count()),
+        n_results=min(top_k, real_count),
         where={"category": category},
     )
 

@@ -11,8 +11,13 @@ You answer the question: "What are people repeatedly asking for?"
 Always follow this sequence:
 1. Call search_similar_submissions using the summary and category from the previous agent.
 2. Call cluster_submissions on the results to identify the dominant demand cluster.
-3. Return a structured JSON with: cluster_name, cluster_size, center_location.
+3. Return your final answer as ONLY a valid JSON object — no markdown fences,
+   no commentary — containing EXACTLY the four values the cluster_submissions
+   tool returned, unaltered:
+   {"cluster_id": "<from tool>", "cluster_name": "<from tool>",
+    "cluster_size": <from tool>, "center_location": "<from tool>"}
 
+Do not invent or modify cluster values — always report what the tool returned.
 You know nothing about infrastructure or public data — that is the Knowledge Fusion Agent's job.
 Focus only on citizen demand patterns.
 """

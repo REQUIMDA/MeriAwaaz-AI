@@ -1,3 +1,4 @@
+import logging
 import shutil
 import uuid
 from datetime import datetime
@@ -24,6 +25,7 @@ except Exception:
     _PIPELINE_AVAILABLE = False
 
 router = APIRouter()
+logger = logging.getLogger("pipeline")
 
 
 # ---------------------------------------------------------------------------
@@ -145,6 +147,7 @@ async def create_submission(
 
     recommendation = None
     parsed_issue = None
+    pipeline_error = None
 
     if _PIPELINE_AVAILABLE:
         state = AgentState(
@@ -153,7 +156,12 @@ async def create_submission(
             raw_text=text,
             media_file_path=saved_path,
         )
-        result = _pipeline.invoke(state, config={"configurable": {"thread_id": sid}})
+        try:
+            result = _pipeline.invoke(state, config={"configurable": {"thread_id": sid}})
+        except Exception as exc:
+            logger.exception("Pipeline crashed for submission %s", sid)
+            pipeline_error = f"pipeline crashed: {exc}"
+            result = None
 
         if isinstance(result, dict):
             pi = result.get("parsed_issue")
@@ -163,11 +171,13 @@ async def create_submission(
             # speech_processing may set audio_url on the state
             if not audio_url:
                 audio_url = result.get("audio_url")
-        else:
+            pipeline_error = pipeline_error or result.get("error")
+        elif result is not None:
             parsed_issue = getattr(result, "parsed_issue", None)
             recommendation = getattr(result, "recommendation", None)
             if not audio_url:
                 audio_url = getattr(result, "audio_url", None)
+            pipeline_error = pipeline_error or getattr(result, "error", None)
 
     # Use the text that actually ran through the pipeline (vision agent may have
     # replaced it with a description)
@@ -190,22 +200,33 @@ async def create_submission(
         "audio_url": audio_url,
     })
 
-    # Add to ChromaDB for future similarity search
+    # Add to ChromaDB for future similarity search.
+    # Never let an embedding failure 500 the whole request — the submission is
+    # already persisted; it just won't be findable by similarity search.
     searchable_text = effective_text or "photo submission"
-    chroma_client.add_submission(
-        submission_id=sid,
-        text=searchable_text,
-        metadata={
-            "category": parsed_issue.category if parsed_issue else "Other",
-            "location": parsed_issue.location if parsed_issue else "unspecified",
-        },
-    )
+    try:
+        chroma_client.add_submission(
+            submission_id=sid,
+            text=searchable_text,
+            metadata={
+                "category": parsed_issue.category if parsed_issue else "Other",
+                "location": parsed_issue.location if parsed_issue else "unspecified",
+            },
+        )
+    except Exception as exc:
+        logger.exception("ChromaDB indexing failed for submission %s", sid)
+        try:
+            database.log_agent(sid, "chroma_indexing", "error", 0, str(exc)[:2000])
+        except Exception:
+            pass
 
     return {
-        "status": "processed" if _PIPELINE_AVAILABLE else "stored",
+        "status": "processed" if _PIPELINE_AVAILABLE and not pipeline_error else
+                  ("degraded" if _PIPELINE_AVAILABLE else "stored"),
         "submission_id": sid,
         "photo_url": photo_url,
         "audio_url": audio_url,
+        "error": pipeline_error,
         "recommendation": recommendation.model_dump() if recommendation else None,
     }
 

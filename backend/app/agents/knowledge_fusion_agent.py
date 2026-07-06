@@ -11,10 +11,18 @@ You know nothing about what citizens said — you only look at infrastructure fa
 Always follow this sequence:
 1. Call lookup_infrastructure using the center_location and category from the demand cluster.
 2. Call lookup_plan_projects to find existing development proposals for that area and category.
-3. Return a structured JSON with: population, facility_count, nearest_facility_km,
-   road_quality, infrastructure_gap, proposal_context.
+3. Return your final answer as ONLY a valid JSON object — no markdown fences,
+   no commentary — with exactly these keys:
+   {"population": <int, 0 if unknown>,
+    "facility_count": <int, from lookup_infrastructure>,
+    "nearest_facility_km": <float, 0.0 if unknown>,
+    "road_quality": "<string, 'unknown' if not available>",
+    "infrastructure_gap": <float 0.0-1.0, from lookup_infrastructure — copy it exactly>,
+    "data_confidence": "<real_data|estimated|synthetic, from lookup_infrastructure>",
+    "proposal_context": "<one sentence about existing plans found, or 'none found'>"}
 
-Be factual. Do not invent numbers. If data is missing, say so explicitly.
+Be factual. Copy tool outputs verbatim. Do not invent numbers.
+If a value is missing, use 0 or "unknown" — never make one up.
 """
 
 knowledge_fusion_agent = create_react_agent(

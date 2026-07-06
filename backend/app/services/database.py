@@ -75,6 +75,7 @@ def init_db() -> None:
         "ALTER TABLE submissions ADD COLUMN photo_url TEXT",
         "ALTER TABLE submissions ADD COLUMN video_url TEXT",
         "ALTER TABLE submissions ADD COLUMN audio_url TEXT",
+        "ALTER TABLE agent_log ADD COLUMN detail TEXT",
     ]:
         try:
             conn.execute(col_sql)
@@ -197,11 +198,37 @@ def get_last_updated() -> str | None:
     return result.get("last_updated") if result else None
 
 
-def log_agent(submission_id: str, agent_name: str, status: str, duration_ms: int) -> None:
+def log_agent(submission_id: str, agent_name: str, status: str,
+              duration_ms: int, detail: str = "") -> None:
     conn = _connect()
     conn.execute("""
-        INSERT INTO agent_log (submission_id, agent_name, status, duration_ms, created_at)
-        VALUES (?, ?, ?, ?, ?)
-    """, (submission_id, agent_name, status, duration_ms, datetime.utcnow().isoformat()))
+        INSERT INTO agent_log (submission_id, agent_name, status, duration_ms, detail, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (submission_id, agent_name, status, duration_ms, detail,
+          datetime.utcnow().isoformat()))
     conn.commit()
     conn.close()
+
+
+def get_agent_logs(submission_id: str) -> list[dict]:
+    conn = _connect()
+    rows = conn.execute("""
+        SELECT id, agent_name, status, duration_ms, detail, created_at
+        FROM agent_log
+        WHERE submission_id = ?
+        ORDER BY id ASC
+    """, (submission_id,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_recent_agent_logs(limit: int = 50) -> list[dict]:
+    conn = _connect()
+    rows = conn.execute("""
+        SELECT id, submission_id, agent_name, status, duration_ms, detail, created_at
+        FROM agent_log
+        ORDER BY id DESC
+        LIMIT ?
+    """, (limit,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]

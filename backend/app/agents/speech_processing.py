@@ -106,7 +106,7 @@ def run(state: AgentState) -> dict:
                 "error": f"Gemini audio processing failed with state: {audio_file.state.name}",
             }
 
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel(os.getenv("GEMINI_MODEL", "gemini-3.5-flash"))
         response = model.generate_content([audio_file, _TRANSCRIBE_PROMPT])
         transcript = response.text.strip()
 

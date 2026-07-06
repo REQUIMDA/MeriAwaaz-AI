@@ -63,13 +63,39 @@ def get_dashboard() -> DashboardData:
 @router.post("/api/dashboard-refresh", response_model=DashboardRefreshResponse)
 def dashboard_refresh() -> DashboardRefreshResponse:
     """
-    Re-score all existing FusedContext entries.
-    Policy Agent integration is a TODO — skeleton is ready.
+    Deterministically re-score every stored FusedContext using the same
+    weighted formula as compute_priority_score (no LLM call needed).
     """
-    contexts = STORE.all_contexts()
+    from app.schemas.models import ScoreBreakdown
+    from app.tools.policy_tools import compute_priority_score
 
-    for ctx in contexts:
-        # TODO: replace with real Policy Recommendation Agent call
-        pass
+    count = 0
+    for project_id, ctx in STORE._contexts.items():
+        rec = STORE.get_recommendation(project_id)
+        if rec is None:
+            continue
 
-    return DashboardRefreshResponse(count=len(contexts))
+        cost = ctx.estimated_cost_inr or 0
+        result = compute_priority_score.invoke({
+            "citizen_demand": min(ctx.demand_count / 50, 1.0),
+            "infrastructure_gap": ctx.severity_score,
+            "population_impact": min(ctx.population_affected / 15000, 1.0),
+            # unknown cost = neutral 0.5, matching the pipeline's scorer —
+            # previously cost=0 scored a perfect 1.0 and inflated refreshed scores
+            "cost_feasibility": max(0.0, 1.0 - cost / 10_000_000) if cost else 0.5,
+        })
+        bd = result["breakdown"]
+
+        updated = rec.model_copy(update={
+            "priority_score": round(result["priority_score"] * 100, 2),
+            "breakdown": ScoreBreakdown(
+                citizen_demand=round(bd["citizen_demand"] * 100, 2),
+                severity=round(bd["infrastructure_gap"] * 100, 2),
+                population_impact=round(bd["population_impact"] * 100, 2),
+                cost_feasibility=round(bd["cost_feasibility"] * 100, 2),
+            ),
+        })
+        STORE.upsert_recommendation(updated)
+        count += 1
+
+    return DashboardRefreshResponse(count=count)

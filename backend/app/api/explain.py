@@ -7,7 +7,7 @@ from app.services.store import STORE
 # Explainability Agent — defensive import
 # ---------------------------------------------------------------------------
 try:
-    from app.agents.explainability_agent import explainability_agent
+    from app.supervisor import explainability_node
     _AGENT_AVAILABLE = True
 except ImportError:
     _AGENT_AVAILABLE = False
@@ -20,22 +20,14 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 
 def _invoke_explainability(state: AgentState) -> Explanation:
-    result = explainability_agent.invoke(state.model_dump())
+    # explainability_node handles the AgentState -> MessagesState translation
+    result_dict = explainability_node(state)
+    rec = result_dict.get("recommendation", state.recommendation)
 
-    rec_result = result.get("recommendation") or {}
+    if rec is not None and rec.explanation is not None:
+        return rec.explanation
 
-    if isinstance(rec_result, dict):
-        explanation_data = rec_result.get("explanation")
-    else:
-        explanation_data = getattr(rec_result, "explanation", None)
-
-    if not explanation_data:
-        raise ValueError("Explainability Agent did not produce an explanation.")
-
-    if isinstance(explanation_data, Explanation):
-        return explanation_data
-
-    return Explanation(**explanation_data)
+    raise ValueError("Explainability Agent did not produce an explanation.")
 
 
 # ---------------------------------------------------------------------------

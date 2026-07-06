@@ -103,7 +103,8 @@ def _process_image(file_path: str) -> str:
         {"type": "image_url", "image_url": {"url": f"data:{mime_type};base64,{b64}"}},
     ])
     response = model.invoke([message])
-    return response.content if hasattr(response, "content") else str(response)
+    from app.core.llm import content_to_text
+    return content_to_text(getattr(response, "content", response))
 
 
 def _process_video(file_path: str) -> str:
@@ -129,7 +130,7 @@ def _process_video(file_path: str) -> str:
         raise RuntimeError(f"Gemini file processing ended in state: {video_file.state.name}")
 
     try:
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel(os.getenv("GEMINI_MODEL", "gemini-3.5-flash"))
         response = model.generate_content([video_file, _VIDEO_PROMPT])
         return response.text
     finally:

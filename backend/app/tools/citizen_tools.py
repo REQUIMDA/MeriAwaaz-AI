@@ -45,7 +45,8 @@ def extract_issue_details(text: str) -> dict:
 
     model = get_model()
     response = model.invoke([HumanMessage(content=prompt)])
-    content = response.content if hasattr(response, "content") else str(response)
+    from app.core.llm import content_to_text
+    content = content_to_text(getattr(response, "content", response))
 
     try:
         result = _parse_json(content)
@@ -88,9 +89,11 @@ def detect_language(text: str) -> str:
 
     model = get_model()
     response = model.invoke([HumanMessage(content=prompt)])
-    content = response.content if hasattr(response, "content") else str(response)
+    from app.core.llm import content_to_text
+    content = content_to_text(getattr(response, "content", response))
 
     # Clean up whatever Gemini returned
-    code = content.strip().lower().replace('"', "").replace("'", "").split()[0]
+    parts = content.strip().lower().replace('"', "").replace("'", "").split()
+    code = parts[0] if parts else "en"
     # Keep only the first 2–3 chars; fall back to 'en' if nonsensical
     return code[:3] if (2 <= len(code) <= 3 and code.isalpha()) else "en"

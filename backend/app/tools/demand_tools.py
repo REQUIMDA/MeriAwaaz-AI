@@ -1,4 +1,5 @@
 import json
+import re
 import uuid
 
 from langchain_core.tools import tool
@@ -56,7 +57,10 @@ def cluster_submissions(
     Returns:
         dict with keys: cluster_id, cluster_name, cluster_size, center_location
     """
-    # Build context of existing clusters for Gemini to match against
+    # Build context of ALL existing clusters for Gemini to match against.
+    # NOTE: previously this filtered on cluster_name == category, which almost
+    # never matched (cluster_name is descriptive, e.g. "Road Repair"), so
+    # clusters were never reused and demand counts never grew.
     existing_clusters = [
         {
             "cluster_id": cid,
@@ -65,7 +69,6 @@ def cluster_submissions(
             "cluster_size": c.cluster_size,
         }
         for cid, c in STORE.clusters.items()
-        if c.cluster_name.lower() == category.lower()
     ]
 
     # Build list of similar submission summaries for Gemini
@@ -81,12 +84,14 @@ Current submission:
 Similar past submissions ({len(similar_texts)} found):
 {json.dumps(similar_texts, indent=2) if similar_texts else "None yet."}
 
-Existing clusters for this category:
+Existing clusters (all categories):
 {json.dumps(existing_clusters, indent=2) if existing_clusters else "None yet."}
 
 Task:
 1. Decide if this submission belongs to an existing cluster or needs a new one.
-2. If it matches an existing cluster, return that cluster_id.
+   Only reuse an existing cluster if it clearly refers to the SAME kind of issue
+   (matching the "{category}" category) in the same or a nearby location.
+2. If it matches an existing cluster, return that cluster_id exactly as given.
 3. If it is a new cluster, set cluster_id to "new".
 4. Give the cluster a short descriptive name (e.g. "School Infrastructure", "Road Repair", "Water Supply").
 5. The center_location should be the most representative location.
@@ -101,8 +106,10 @@ Return ONLY valid JSON with these exact keys:
 No explanation, no markdown, just the JSON object."""
 
     response = _get_llm().invoke(prompt)
-    content = response.content if hasattr(response, "content") else str(response)
-    content = content.strip().strip("```json").strip("```").strip()
+    from app.core.llm import content_to_text
+    content = content_to_text(getattr(response, "content", response))
+    # str.strip("```json") strips a character SET, not the substring — use regex
+    content = re.sub(r"```(?:json)?\s*", "", content).strip().rstrip("`").strip()
 
     try:
         gemini_result = json.loads(content)

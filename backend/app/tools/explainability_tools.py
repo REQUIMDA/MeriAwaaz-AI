@@ -25,10 +25,23 @@ def build_evidence_bullets(
         list of evidence bullet strings
     """
     bullets = [
-        f"{cluster_size} citizens submitted {category.lower()} related requests.",
-        f"Only {facility_count} existing {category.lower()} facilit{'y' if facility_count == 1 else 'ies'} serving a population of {population:,}.",
-        f"Infrastructure gap score: {infrastructure_gap:.0%}.",
+        f"{cluster_size} citizen{'s' if cluster_size != 1 else ''} submitted "
+        f"{category.lower()}-related requests.",
     ]
+    # Only cite facility/population figures when we actually have them —
+    # "0 facilities serving a population of 0" reads as broken data.
+    if population > 0:
+        bullets.append(
+            f"{facility_count} existing {category.lower()} "
+            f"facilit{'y' if facility_count == 1 else 'ies'} serving an estimated "
+            f"population of {population:,}."
+        )
+    elif facility_count > 0:
+        bullets.append(
+            f"{facility_count} existing {category.lower()} "
+            f"facilit{'y' if facility_count == 1 else 'ies'} in the area."
+        )
+    bullets.append(f"Infrastructure gap score: {infrastructure_gap:.0%}.")
     return bullets
 
 
@@ -51,8 +64,13 @@ def compute_confidence_score(
     Returns:
         confidence score between 0.0 and 1.0
     """
+    # Callers sometimes pass the 0-100 display scale — normalise to 0-1 so the
+    # result never exceeds Explanation's confidence_score bound (le=1.0).
+    if priority_score > 1.0:
+        priority_score = priority_score / 100.0
     demand_signal = min(cluster_size / 50, 1.0)  # caps at 50 submissions = full signal
-    confidence = round(
-        0.50 * priority_score + 0.30 * demand_signal + 0.20 * data_completeness, 4
-    )
+    confidence = round(min(
+        0.50 * priority_score + 0.30 * demand_signal + 0.20 * data_completeness,
+        1.0,
+    ), 4)
     return confidence

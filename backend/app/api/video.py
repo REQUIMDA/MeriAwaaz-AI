@@ -10,6 +10,7 @@ Supported formats : mp4, mov, avi, mkv, webm
 Hard size limit   : 50 MB (enforced again here before hitting the agent)
 """
 
+import logging
 import shutil
 import uuid
 from datetime import datetime
@@ -39,6 +40,7 @@ except Exception:
     _PIPELINE_AVAILABLE = False
 
 router = APIRouter()
+logger = logging.getLogger("pipeline")
 
 
 # ---------------------------------------------------------------------------
@@ -93,6 +95,7 @@ async def create_video_submission(
 
     recommendation: Optional[Recommendation] = None
     parsed_issue: Optional[ParsedIssue] = None
+    pipeline_error: Optional[str] = None
 
     if _PIPELINE_AVAILABLE:
         state = AgentState(
@@ -101,16 +104,23 @@ async def create_video_submission(
             raw_text="",                  # vision_processing fills this in
             media_file_path=saved_path,
         )
-        result = _pipeline.invoke(state, config={"configurable": {"thread_id": sid}})
+        try:
+            result = _pipeline.invoke(state, config={"configurable": {"thread_id": sid}})
+        except Exception as exc:
+            logger.exception("Pipeline crashed for video submission %s", sid)
+            pipeline_error = f"pipeline crashed: {exc}"
+            result = None
 
         if isinstance(result, dict):
             pi = result.get("parsed_issue")
             parsed_issue = pi if isinstance(pi, ParsedIssue) else None
             rec = result.get("recommendation")
             recommendation = rec if isinstance(rec, Recommendation) else None
-        else:
+            pipeline_error = pipeline_error or result.get("error")
+        elif result is not None:
             parsed_issue = getattr(result, "parsed_issue", None)
             recommendation = getattr(result, "recommendation", None)
+            pipeline_error = pipeline_error or getattr(result, "error", None)
 
     effective_text = parsed_issue.summary if parsed_issue else "video submission"
 
@@ -131,19 +141,28 @@ async def create_video_submission(
         "audio_url": None,
     })
 
-    # Index in ChromaDB
-    chroma_client.add_submission(
-        submission_id=sid,
-        text=effective_text,
-        metadata={
-            "category": parsed_issue.category if parsed_issue else "Other",
-            "location": parsed_issue.location if parsed_issue else "unspecified",
-        },
-    )
+    # Index in ChromaDB — never let an embedding failure 500 the request
+    try:
+        chroma_client.add_submission(
+            submission_id=sid,
+            text=effective_text,
+            metadata={
+                "category": parsed_issue.category if parsed_issue else "Other",
+                "location": parsed_issue.location if parsed_issue else "unspecified",
+            },
+        )
+    except Exception as exc:
+        logger.exception("ChromaDB indexing failed for video submission %s", sid)
+        try:
+            database.log_agent(sid, "chroma_indexing", "error", 0, str(exc)[:2000])
+        except Exception:
+            pass
 
     return {
-        "status": "processed" if _PIPELINE_AVAILABLE else "stored",
+        "status": "processed" if _PIPELINE_AVAILABLE and not pipeline_error else
+                  ("degraded" if _PIPELINE_AVAILABLE else "stored"),
         "submission_id": sid,
         "video_url": video_url,
+        "error": pipeline_error,
         "recommendation": recommendation.model_dump() if recommendation else None,
     }
