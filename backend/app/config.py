@@ -25,6 +25,9 @@ CATEGORY_CONFIG = {
         "location_field": "state",
         "need_field": "rural_teledensity",
         "direction": "lower_is_more_need",
+        # City and aggregate rows are not states — including them in the
+        # normalisation pool (Mumbai teledensity 210) inflated everyone's need
+        "exclude_locations": ["Delhi", "Mumbai", "Chennai", "Kolkata", "North-East"],
     },
     # Roads, Water, Sanitation, Electricity, Vocational: add entries here the
     # moment you source real data for them.

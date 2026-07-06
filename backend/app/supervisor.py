@@ -264,12 +264,15 @@ def knowledge_fusion_node(state: AgentState) -> dict:
             info = lookup_infrastructure.invoke({"location": location, "category": pi.category})
         except Exception:
             info = {}
+        from app.services.need_scoring import apply_complaint_boost
         return {"knowledge_context": FusedContext(
             category=pi.category, location=location,
             demand_count=cluster.cluster_size if cluster else 1,
             population_affected=int(info.get("population", 0) or 0) or _DEFAULT_WARD_POPULATION,
             data_confidence=info.get("data_confidence", "estimated"),
-            severity_score=float(info.get("infrastructure_gap", 0.5)),
+            severity_score=apply_complaint_boost(
+                float(info.get("infrastructure_gap", 0.5)),
+                cluster.cluster_size if cluster else 1, 10),
             category_specific_data={k: v for k, v in info.items()
                                      if isinstance(v, (int, float, str))},
             is_existing_plan_project=False,
@@ -290,6 +293,10 @@ def knowledge_fusion_node(state: AgentState) -> dict:
         content = _last_message_content(result)
         data = _strip_json(content)
         raw_conf = data.get("data_confidence")
+        # Citizen demand lifts severity by up to +0.15 (capped at 10 clustered
+        # submissions) — repeated complaints about the same issue now move the
+        # 30-point severity component, not just the 40-point demand component.
+        from app.services.need_scoring import apply_complaint_boost
         ctx = FusedContext(
             category=pi.category,
             location=location,
@@ -297,7 +304,9 @@ def knowledge_fusion_node(state: AgentState) -> dict:
             population_affected=int(data.get("population", 0) or 0) or _DEFAULT_WARD_POPULATION,
             estimated_cost_inr=None,
             data_confidence=raw_conf if raw_conf in ("real_data", "estimated", "synthetic") else "estimated",
-            severity_score=float(data.get("infrastructure_gap", 0.5)),
+            severity_score=apply_complaint_boost(
+                float(data.get("infrastructure_gap", 0.5)),
+                cluster.cluster_size if cluster else 1, 10),
             category_specific_data={k: v for k, v in data.items()
                                      if isinstance(v, (int, float, str))},
             is_existing_plan_project=False,

@@ -25,17 +25,31 @@ def lookup_infrastructure(location: str, category: str) -> dict:
     config = CATEGORY_CONFIG.get(category)
 
     if config is None:
-        # No dataset for Roads / Water / Sanitation / Electricity / Vocational yet
+        # No public dataset for Roads / Water / Sanitation / Electricity /
+        # Vocational yet — use clearly-labelled synthetic priors instead of a
+        # flat 0.5, reported with data_confidence='synthetic'.
+        try:
+            priors = need_scoring.load_json("data/synthetic_category_priors.json")
+            prior = priors.get(category, {})
+        except Exception:
+            prior = {}
         return {
             "population": 0,
-            "facility_count": 0,
+            "facility_count": int(prior.get("facility_count", 0)),
             "nearest_facility_km": 0.0,
             "road_quality": "unknown",
-            "infrastructure_gap": 0.5,   # neutral — no data either way
-            "data_confidence": "estimated",
+            "infrastructure_gap": float(prior.get("infrastructure_gap", 0.5)),
+            "data_confidence": "synthetic",
         }
 
     records = need_scoring.load_json(config["dataset"])
+
+    # Drop city/aggregate rows from the normalisation pool where configured
+    # (e.g. Mumbai's teledensity of 210 is not a state and skewed the scale)
+    exclude = {v.strip().lower() for v in config.get("exclude_locations", [])}
+    if exclude:
+        records = [r for r in records
+                   if str(r.get(config["location_field"], "")).strip().lower() not in exclude]
 
     # Dataset is at state level or district level — use constituency defaults
     if config["location_level"] == "state":
@@ -61,6 +75,19 @@ def lookup_infrastructure(location: str, category: str) -> dict:
     all_values = [r.get(config["need_field"]) for r in records]
     raw_value = float(record.get(config["need_field"]) or 0.0)
     gap = need_scoring.normalize(raw_value, all_values, config["direction"])
+
+    # Healthcare: medicine_shortage_ratio alone is zero for 77% of districts.
+    # Blend it with OPD utilisation pressure (patients per dispensary) — a real
+    # signal the dataset already carries (Nagpur: 656 OPD/day per 1 dispensary).
+    if category == "Healthcare" and any((r.get("total_opd") or 0) for r in records):
+        pressures = [
+            (r.get("total_opd") or 0) / max(r.get("dispensary_count") or 1, 1)
+            for r in records
+        ]
+        own_pressure = ((record.get("total_opd") or 0)
+                        / max(record.get("dispensary_count") or 1, 1))
+        opd_gap = need_scoring.normalize(own_pressure, pressures, "higher_is_more_need")
+        gap = 0.5 * gap + 0.5 * opd_gap
 
     # Pull a facility count if the record has one
     facility_count = int(
