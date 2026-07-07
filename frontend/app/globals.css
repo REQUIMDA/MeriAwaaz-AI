@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f9fc;
+  --surface: #f7f9fc;
+
+  --primary: #000000;
+  --secondary: #455f87;
+
+  --on-surface: #191c1e;
+  --on-surface-variant: #43474b;
+
+  --outline-variant: #c3c7cc;
+
+  --secondary-container: #b5d0fd;
+
+  --glass: rgba(255,255,255,.8);
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+}
+
+body{
+    font-family:var(--font-inter),sans-serif;
+    background:var(--background);
+    color:var(--on-surface);
+}
+
+.glass-card{
+    background:rgba(255,255,255,.8);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(230,237,243,1);
+}
+
+.transition-all-custom{
+    transition:all .5s cubic-bezier(.4,0,.2,1);
+}
+
+.role-card:hover{
+    transform:translateY(-4px);
+}
+
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  display: inline-block;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes saffronPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 153, 51, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(255, 153, 51, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 153, 51, 0);
+  }
+}
+
+.voice-fab {
+  animation: saffronPulse 2s infinite;
+}
