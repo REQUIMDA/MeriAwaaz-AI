@@ -1,0 +1,8 @@
+{
+  "_comment": "SYNTHETIC baseline severity priors for categories that have no public dataset yet (Roads, Water, Sanitation, Electricity, Vocational). These are plausible rural-Maharashtra estimates, NOT measurements. The API reports them with data_confidence='synthetic' so consumers and judges can distinguish them from real government data. Replace with real datasets (PMGSY road data, Jal Jeevan Mission coverage, SBM sanitation data, etc.) as they are integrated.",
+  "Roads": {"infrastructure_gap": 0.62, "facility_count": 0},
+  "Water": {"infrastructure_gap": 0.58, "facility_count": 1},
+  "Sanitation": {"infrastructure_gap": 0.55, "facility_count": 1},
+  "Electricity": {"infrastructure_gap": 0.45, "facility_count": 2},
+  "Vocational": {"infrastructure_gap": 0.50, "facility_count": 1}
+}

@@ -48,6 +48,8 @@ class FusedContext(BaseModel):
         default=False,
         description="True if sourced from the local development plan's existing project list, not a citizen submission."
     )
+    # Optional linkage: set when citizen demand matched an existing plan project
+    # (carried in category_specific_data as plan_id/plan_title as well)
 # ---------------------------------------------------------------------------
 # Policy Recommendation Agent output
 # ---------------------------------------------------------------------------
@@ -79,6 +81,7 @@ class Recommendation(BaseModel):
     priority_score: float = Field(ge=0.0, le=100.0)
     breakdown: ScoreBreakdown
     is_existing_plan_project: bool = False
+    reason: Optional[str] = None                # one-line competitive rationale from the Policy Agent
     explanation: Optional[Explanation] = None   # None right after Policy Agent; filled in by Explainability Agent
 
 
@@ -88,9 +91,10 @@ class Recommendation(BaseModel):
 
 class AgentState(BaseModel):
     submission_id: str
-    input_type: Literal["text", "voice", "photo", "dashboard_refresh"]
+    input_type: Literal["text", "voice", "image", "video", "dashboard_refresh"]
     raw_text: str = ""
-    media_file_path: Optional[str] = None
+    media_file_path: Optional[str] = None   # path to image, video, or audio file on disk
+    audio_url: Optional[str] = None         # set by speech_processing; served as /uploads/{file}
 
     parsed_issue: Optional[ParsedIssue] = None
     cluster: Optional[ClusterResult] = None

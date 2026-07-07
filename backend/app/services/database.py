@@ -31,7 +31,10 @@ def init_db() -> None:
             summary TEXT,
             confidence REAL,
             language TEXT,
-            cluster_id TEXT
+            cluster_id TEXT,
+            photo_url TEXT,
+            video_url TEXT,
+            audio_url TEXT
         );
 
         CREATE TABLE IF NOT EXISTS clusters (
@@ -67,7 +70,18 @@ def init_db() -> None:
             created_at TEXT NOT NULL
         );
     """)
-    conn.commit()
+    # Migrations: add new columns to existing databases
+    for col_sql in [
+        "ALTER TABLE submissions ADD COLUMN photo_url TEXT",
+        "ALTER TABLE submissions ADD COLUMN video_url TEXT",
+        "ALTER TABLE submissions ADD COLUMN audio_url TEXT",
+        "ALTER TABLE agent_log ADD COLUMN detail TEXT",
+    ]:
+        try:
+            conn.execute(col_sql)
+            conn.commit()
+        except Exception:
+            pass  # Column already exists
     conn.close()
 
 
@@ -75,8 +89,10 @@ def insert_submission(sub: dict) -> None:
     conn = _connect()
     conn.execute("""
         INSERT OR IGNORE INTO submissions
-        (id, created_at, input_type, raw_text, category, location, summary, confidence, language, cluster_id)
-        VALUES (:id, :created_at, :input_type, :raw_text, :category, :location, :summary, :confidence, :language, :cluster_id)
+        (id, created_at, input_type, raw_text, category, location, summary,
+         confidence, language, cluster_id, photo_url, video_url, audio_url)
+        VALUES (:id, :created_at, :input_type, :raw_text, :category, :location, :summary,
+                :confidence, :language, :cluster_id, :photo_url, :video_url, :audio_url)
     """, sub)
     conn.commit()
     conn.close()
@@ -165,11 +181,54 @@ def count_submissions_by_ward() -> list[dict]:
     return [dict(r) for r in rows]
 
 
-def log_agent(submission_id: str, agent_name: str, status: str, duration_ms: int) -> None:
+def count_all_submissions() -> int:
+    conn = _connect()
+    row = conn.execute("SELECT COUNT(*) as total FROM submissions").fetchone()
+    conn.close()
+    return row["total"] if row else 0
+
+
+def get_last_updated() -> str | None:
+    conn = _connect()
+    row = conn.execute(
+        "SELECT MAX(last_updated) as last_updated FROM recommendations"
+    ).fetchone()
+    conn.close()
+    result = dict(row) if row else None
+    return result.get("last_updated") if result else None
+
+
+def log_agent(submission_id: str, agent_name: str, status: str,
+              duration_ms: int, detail: str = "") -> None:
     conn = _connect()
     conn.execute("""
-        INSERT INTO agent_log (submission_id, agent_name, status, duration_ms, created_at)
-        VALUES (?, ?, ?, ?, ?)
-    """, (submission_id, agent_name, status, duration_ms, datetime.utcnow().isoformat()))
+        INSERT INTO agent_log (submission_id, agent_name, status, duration_ms, detail, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (submission_id, agent_name, status, duration_ms, detail,
+          datetime.utcnow().isoformat()))
     conn.commit()
     conn.close()
+
+
+def get_agent_logs(submission_id: str) -> list[dict]:
+    conn = _connect()
+    rows = conn.execute("""
+        SELECT id, agent_name, status, duration_ms, detail, created_at
+        FROM agent_log
+        WHERE submission_id = ?
+        ORDER BY id ASC
+    """, (submission_id,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_recent_agent_logs(limit: int = 50) -> list[dict]:
+    conn = _connect()
+    rows = conn.execute("""
+        SELECT id, submission_id, agent_name, status, duration_ms, detail, created_at
+        FROM agent_log
+        ORDER BY id DESC
+        LIMIT ?
+    """, (limit,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
