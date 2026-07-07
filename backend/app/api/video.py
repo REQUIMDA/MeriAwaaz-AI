@@ -51,6 +51,7 @@ logger = logging.getLogger("pipeline")
 async def create_video_submission(
     channel: str = Form("video"),
     video: UploadFile = File(...),
+    text: str = Form(""),
 ):
     """
     Accept a citizen video submission.
@@ -58,10 +59,11 @@ async def create_video_submission(
     Send as multipart/form-data:
       - channel : "video"  (fixed)
       - video   : the video file (required)
+      - text    : optional message accompanying the video (e.g. location/details)
 
     The vision_processing agent analyzes both the visual footage AND the
-    audio track and writes a structured complaint into raw_text, which
-    then flows through all 5 agents as normal.
+    audio track, combines it with the citizen's own message, and writes a
+    structured complaint into raw_text for the 5-agent pipeline.
     """
     sid = str(uuid.uuid4())
 
@@ -101,7 +103,7 @@ async def create_video_submission(
         state = AgentState(
             submission_id=sid,
             input_type="video",
-            raw_text="",                  # vision_processing fills this in
+            raw_text=text or "",          # vision_processing combines this with its analysis
             media_file_path=saved_path,
         )
         try:

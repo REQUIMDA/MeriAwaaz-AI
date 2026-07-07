@@ -120,6 +120,15 @@ async def create_submission(
     channel_map = {"text": "text", "voice": "voice", "photo": "image", "image": "image"}
     input_type = channel_map.get(channel, "text")
 
+    # Robustness: infer the type from what was actually attached. Users often
+    # leave channel at its default while uploading media — previously an audio
+    # file with channel="text" was silently ignored (audio_url: null) and the
+    # pipeline ran on empty text, producing garbage.
+    if audio and audio.filename and input_type != "voice":
+        input_type = "voice"
+    elif photo and photo.filename and input_type == "text":
+        input_type = "image"
+
     UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
     # Save uploaded photo to disk

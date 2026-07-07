@@ -24,13 +24,18 @@ from app.schemas.models import AgentState
 # Constants
 # ---------------------------------------------------------------------------
 
-MAX_FILE_BYTES = 50 * 1024 * 1024  # 50 MB
+MAX_FILE_BYTES = 50 * 1024 * 1024      # 50 MB hard reject
+INLINE_LIMIT_BYTES = 20 * 1024 * 1024  # ≤20 MB sent inline (no File API needed)
 
 AUDIO_MIME = {
     ".mp3":  "audio/mpeg",
+    ".mpeg": "audio/mpeg",
+    ".mpga": "audio/mpeg",
     ".wav":  "audio/wav",
     ".m4a":  "audio/mp4",
     ".ogg":  "audio/ogg",
+    ".oga":  "audio/ogg",
+    ".opus": "audio/opus",
     ".flac": "audio/flac",
     ".aac":  "audio/aac",
     ".webm": "audio/webm",
@@ -83,14 +88,22 @@ def run(state: AgentState) -> dict:
 
     try:
         genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        model = genai.GenerativeModel(os.getenv("GEMINI_MODEL", "gemini-3.5-flash"))
+        size = os.path.getsize(file_path)
 
-        # Upload to Gemini File API
-        audio_file = genai.upload_file(
-            path=file_path,
-            mime_type=AUDIO_MIME[ext],
-        )
+        if size <= INLINE_LIMIT_BYTES:
+            # INLINE path (preferred): sends bytes directly with the request.
+            # The File API path below goes through Google's discovery endpoint,
+            # which rejects some API key formats with API_KEY_INVALID even when
+            # the same key works fine for generate_content.
+            audio_blob = {"mime_type": AUDIO_MIME[ext],
+                          "data": Path(file_path).read_bytes()}
+            response = model.generate_content([audio_blob, _TRANSCRIBE_PROMPT])
+            transcript = response.text.strip()
+            return {"raw_text": transcript, "audio_url": audio_url}
 
-        # Wait for processing (max 60 s)
+        # LARGE-FILE path (> 20 MB): requires the Gemini File API.
+        audio_file = genai.upload_file(path=file_path, mime_type=AUDIO_MIME[ext])
         max_wait = 60
         waited = 0
         while audio_file.state.name == "PROCESSING" and waited < max_wait:
@@ -106,17 +119,10 @@ def run(state: AgentState) -> dict:
                 "error": f"Gemini audio processing failed with state: {audio_file.state.name}",
             }
 
-        model = genai.GenerativeModel(os.getenv("GEMINI_MODEL", "gemini-3.5-flash"))
         response = model.generate_content([audio_file, _TRANSCRIBE_PROMPT])
         transcript = response.text.strip()
-
-        # Clean up
         genai.delete_file(audio_file.name)
-
-        return {
-            "raw_text": transcript,
-            "audio_url": audio_url,
-        }
+        return {"raw_text": transcript, "audio_url": audio_url}
 
     except Exception as e:
         return {

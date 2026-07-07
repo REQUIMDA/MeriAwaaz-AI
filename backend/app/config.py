@@ -32,4 +32,19 @@ CATEGORY_CONFIG = {
     # Roads, Water, Sanitation, Electricity, Vocational: add entries here the
     # moment you source real data for them.
 }
-__all__ = ["CATEGORY_CONFIG", "CONSTITUENCY"]
+
+# Synthetic per-category cost anchors (₹) for citizen-originated projects with
+# no matched plan cost. Estimates modelled on local_plans.json — NOT quotes.
+# Without these, cost_feasibility was a dead constant for every new project.
+CATEGORY_COST_ESTIMATES = {
+    "Education": 3_500_000,
+    "Healthcare": 1_800_000,
+    "Roads": 6_000_000,
+    "Water": 2_500_000,
+    "Sanitation": 1_200_000,
+    "Electricity": 2_000_000,
+    "Vocational": 4_500_000,
+    "Other": 1_500_000,
+}
+
+__all__ = ["CATEGORY_CONFIG", "CATEGORY_COST_ESTIMATES", "CONSTITUENCY"]

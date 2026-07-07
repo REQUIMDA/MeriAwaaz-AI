@@ -88,6 +88,13 @@ def on_startup():
     init_db()
     plans_path = str(Path(__file__).parent / "data" / "local_plans.json")
     STORE.load_local_plans(plans_path)
+    # Re-score seed plans with the same relative scorer the pipeline uses, so
+    # plan projects and citizen projects are always on comparable math.
+    try:
+        from app.api.dashboard import dashboard_refresh
+        dashboard_refresh()
+    except Exception as exc:
+        logger.warning("Startup re-score failed (non-fatal): %s", exc)
     logger.info("Startup complete.")
 
 

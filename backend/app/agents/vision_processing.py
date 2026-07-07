@@ -33,7 +33,8 @@ from app.schemas.models import AgentState
 # Constants
 # ---------------------------------------------------------------------------
 
-MAX_FILE_BYTES = 50 * 1024 * 1024  # 50 MB hard limit
+MAX_FILE_BYTES = 50 * 1024 * 1024      # 50 MB hard limit
+INLINE_LIMIT_BYTES = 20 * 1024 * 1024  # ≤20 MB sent inline (no File API needed)
 
 IMAGE_MIME = {
     ".jpg": "image/jpeg",
@@ -50,32 +51,52 @@ VIDEO_MIME = {
     ".webm": "video/webm",
 }
 
-# Deterministic structured prompt — same sections every time
+# Deterministic structured prompts — same sections every time. Deep analysis:
+# the downstream agents can only be as specific as what we extract here.
+_CATEGORIES_HINT = ("Education | Healthcare | Roads | Water | Sanitation | "
+                    "Electricity | Vocational | Other")
+
 _IMAGE_PROMPT = (
-    "Analyze this photo submitted by a citizen to their Member of Parliament in India.\n\n"
-    "Return ONLY the following three lines — no markdown, no headers, no extra text:\n\n"
-    "VISUAL: [2-3 sentences describing exactly what infrastructure problem is visible. "
-    "Reference specific objects, damage, or conditions you can see. "
-    "Do NOT speculate about anything not visible in the image.]\n\n"
-    "LOCATION: [Any visible location clues — signboards, landmarks, road names. "
+    "You are analyzing a photo submitted by a citizen to their Member of Parliament in India. "
+    "Your analysis is the ONLY thing downstream systems will see of this image, so be thorough "
+    "and concrete. Describe only what is actually visible — never invent details.\n\n"
+    "Return ONLY the following sections, exactly these labels, no markdown, no extra text:\n\n"
+    "PROBLEM: [Name the specific infrastructure problem in a few words, "
+    "e.g. 'large water-filled pothole in asphalt road', 'broken handpump', "
+    "'overflowing open drain'.]\n\n"
+    "VISUAL_DETAILS: [3-5 sentences of thorough description: what objects/damage are visible, "
+    "approximate size/extent/count (e.g. 'pothole roughly 1 metre wide', 'cracks radiating 2-3 metres'), "
+    "the condition of surrounding infrastructure, and any visible context (traffic, houses, people).]\n\n"
+    "SEVERITY_INDICATORS: [Concrete visual evidence of risk or impact: standing water, exposed rebar, "
+    "depth, proximity to a school/homes/traffic, signs the damage is old or worsening. "
+    "Write 'None visible' if none.]\n\n"
+    "LOCATION_CLUES: [Signboards, shop names, landmarks, road markings, vehicle plates, terrain. "
     "Write 'No location clues visible' if none.]\n\n"
-    "COMPLAINT: [One sentence written as the citizen's own words describing their request to the MP.]"
+    f"SUGGESTED_CATEGORY: [One of: {_CATEGORIES_HINT} — based on what is VISIBLE.]\n\n"
+    "COMPLAINT: [1-2 sentences in the citizen's voice, naming the specific problem and its impact, "
+    "as a request to the MP.]"
 )
 
 _VIDEO_PROMPT = (
-    "Analyze this video submitted by a citizen to their Member of Parliament in India. "
-    "The video may contain both visual footage and spoken audio.\n\n"
-    "Return ONLY the following four lines — no markdown, no headers, no extra text:\n\n"
-    "VISUAL: [2-3 sentences describing exactly what infrastructure problem is visible in the footage. "
-    "Reference specific objects, damage, or conditions. "
-    "Do NOT speculate about anything not visible.]\n\n"
-    "AUDIO: [Exact transcription of everything spoken in the video. "
-    "If no speech is audible write: No speech detected. "
+    "You are analyzing a video submitted by a citizen to their Member of Parliament in India. "
+    "The video may contain both visual footage and spoken audio. Your analysis is the ONLY thing "
+    "downstream systems will see of this video, so be thorough and concrete. "
+    "Describe only what is actually visible/audible — never invent details.\n\n"
+    "Return ONLY the following sections, exactly these labels, no markdown, no extra text:\n\n"
+    "PROBLEM: [Name the specific infrastructure problem shown in a few words.]\n\n"
+    "VISUAL_DETAILS: [3-5 sentences: what the footage shows across its duration, specific damage/"
+    "conditions, approximate extent/count/size, surroundings, people or vehicles affected.]\n\n"
+    "AUDIO_TRANSCRIPT: [Exact transcription of everything spoken, in the original language "
+    "(native script if Hindi/Marathi/etc.). Write 'No speech detected' if silent. "
     "Do NOT paraphrase — use the speaker's exact words.]\n\n"
-    "LOCATION: [Any visible or spoken location clues — signboards, landmarks, road names, area names. "
+    "SEVERITY_INDICATORS: [Concrete evidence of risk or impact seen or spoken: injuries mentioned, "
+    "depth of damage, proximity to homes/school/traffic, duration of the problem if stated. "
+    "Write 'None' if none.]\n\n"
+    "LOCATION_CLUES: [Visible or spoken location references — signboards, landmarks, village/ward names. "
     "Write 'No location clues' if none.]\n\n"
-    "COMPLAINT: [One sentence combining visual evidence and spoken audio into the citizen's complaint, "
-    "written as if the citizen themselves wrote it to the MP.]"
+    f"SUGGESTED_CATEGORY: [One of: {_CATEGORIES_HINT} — based on what is shown/said.]\n\n"
+    "COMPLAINT: [1-2 sentences combining visual and audio evidence into the citizen's complaint, "
+    "in the citizen's voice, naming the specific problem.]"
 )
 
 
@@ -108,13 +129,24 @@ def _process_image(file_path: str) -> str:
 
 
 def _process_video(file_path: str) -> str:
-    """Gemini File API upload → visual + audio analysis → raw complaint text."""
+    """Video → visual + audio analysis → raw complaint text.
+
+    ≤20 MB: bytes sent INLINE with the request (preferred — the File API's
+    discovery endpoint rejects some API key formats with API_KEY_INVALID even
+    when the same key works for generate_content).
+    >20 MB: Gemini File API upload."""
     ext = Path(file_path).suffix.lower()
     mime_type = VIDEO_MIME.get(ext, "video/mp4")
 
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+    model = genai.GenerativeModel(os.getenv("GEMINI_MODEL", "gemini-3.5-flash"))
 
-    # Upload
+    if os.path.getsize(file_path) <= INLINE_LIMIT_BYTES:
+        video_blob = {"mime_type": mime_type, "data": Path(file_path).read_bytes()}
+        response = model.generate_content([video_blob, _VIDEO_PROMPT])
+        return response.text
+
+    # Large file — File API upload
     video_file = genai.upload_file(path=file_path, mime_type=mime_type)
 
     # Wait for Gemini to finish processing (max 90 s)
@@ -130,7 +162,6 @@ def _process_video(file_path: str) -> str:
         raise RuntimeError(f"Gemini file processing ended in state: {video_file.state.name}")
 
     try:
-        model = genai.GenerativeModel(os.getenv("GEMINI_MODEL", "gemini-3.5-flash"))
         response = model.generate_content([video_file, _VIDEO_PROMPT])
         return response.text
     finally:
@@ -186,10 +217,23 @@ def run(state: AgentState) -> dict:
         else:
             raw = _process_image(file_path)
 
-        return {"raw_text": raw.strip()}
+        # CRITICAL: keep the citizen's own words. Previously the image
+        # analysis REPLACED raw_text, so a caption like "Kesarpur has too
+        # many of these" (the only location clue!) was silently discarded.
+        citizen_text = (state.raw_text or "").strip()
+        if citizen_text:
+            combined = (f"CITIZEN'S OWN MESSAGE: {citizen_text}\n\n"
+                        f"ANALYSIS OF ATTACHED {input_type.upper()}:\n{raw.strip()}")
+        else:
+            combined = raw.strip()
+        return {"raw_text": combined}
 
     except Exception as e:
+        citizen_text = (state.raw_text or "").strip()
+        fallback = _build_fallback(input_type)
+        if citizen_text:
+            fallback = f"CITIZEN'S OWN MESSAGE: {citizen_text}\n\n{fallback}"
         return {
-            "raw_text": _build_fallback(input_type),
+            "raw_text": fallback,
             "error": f"Vision processing failed: {str(e)}",
         }

@@ -21,6 +21,24 @@ Always follow this sequence:
 
 Never guess. If location is unclear, set it to "unspecified".
 If category is unclear, choose the closest match; use "Other" only as a last resort.
+
+BE SPECIFIC. The summary must name the CONCRETE problem, not a vague theme:
+  GOOD: "Potholes on the main road in Kesarpur are causing injuries."
+  BAD:  "Civic issues in Kesarpur."
+
+Media submissions arrive as structured analysis with sections like
+CITIZEN'S OWN MESSAGE, PROBLEM, VISUAL_DETAILS, AUDIO_TRANSCRIPT,
+SEVERITY_INDICATORS, LOCATION_CLUES, SUGGESTED_CATEGORY, COMPLAINT.
+When these sections are present:
+- Treat CITIZEN'S OWN MESSAGE as the highest-priority source for location
+  and intent (it is the citizen's literal words).
+- Use SUGGESTED_CATEGORY as a strong hint, but verify it against PROBLEM
+  and VISUAL_DETAILS: potholes/broken roads = Roads, water leaks/dry taps =
+  Water, garbage/open drains = Sanitation, broken streetlights = Electricity.
+- Build the summary from PROBLEM + the strongest SEVERITY_INDICATORS detail
+  (e.g. "A metre-wide water-filled pothole on Kesarpur's main road is
+  endangering two-wheeler riders.").
+- Take location from CITIZEN'S OWN MESSAGE first, then LOCATION_CLUES.
 """
 
 citizen_intelligence_agent = create_react_agent(

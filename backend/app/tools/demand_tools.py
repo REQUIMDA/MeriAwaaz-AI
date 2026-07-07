@@ -93,7 +93,10 @@ Task:
    (matching the "{category}" category) in the same or a nearby location.
 2. If it matches an existing cluster, return that cluster_id exactly as given.
 3. If it is a new cluster, set cluster_id to "new".
-4. Give the cluster a short descriptive name (e.g. "School Infrastructure", "Road Repair", "Water Supply").
+4. Give the cluster a short SPECIFIC name that says what citizens are actually
+   asking for — name the concrete problem, never a generic theme:
+   GOOD: "Pothole Repair - Kesarpur Main Road", "PHC Medicine Shortage"
+   BAD: "Other Civic Needs", "General Issues", "Infrastructure"
 5. The center_location should be the most representative location.
 
 Return ONLY valid JSON with these exact keys:

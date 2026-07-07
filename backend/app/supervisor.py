@@ -97,32 +97,122 @@ def _llm_unavailable(state: AgentState) -> bool:
     return any(marker in err for marker in _LLM_FAILURE_MARKERS)
 
 
-def _deterministic_recommendation(state: AgentState, pi, cluster, ctx) -> Recommendation:
-    """LLM-free recommendation using the pure-Python scoring tool, so the
-    pipeline still produces a ranked project when Gemini is unavailable."""
-    from app.tools.policy_tools import compute_priority_score
+# Marker set by citizen_intelligence_node when a submission has no usable text
+# (e.g. failed transcription). Downstream nodes must NOT cluster or score it —
+# previously it became a ranked "(no usable content)" card on the dashboard.
+_NO_CONTENT_MARKER = "(no usable content in submission)"
+
+
+def _unusable(pi) -> bool:
+    return pi is not None and pi.summary == _NO_CONTENT_MARKER
+
+
+def _match_plan_project(location: str, category: str):
+    """Find an existing *planned* project that this citizen demand validates.
+
+    The problem statement asks the system to 'weigh competing proposals against
+    real demand' — when demand matches a plan project, we attach to it instead
+    of creating a duplicate. Requires a real location to avoid false matches.
+    """
+    if not location or location.strip().lower() == "unspecified":
+        return None
+    from app.tools.knowledge_tools import lookup_plan_projects
+    try:
+        results = lookup_plan_projects.invoke({"location": location, "category": category})
+    except Exception:
+        return None
+    for r in results:
+        if r.get("status") == "planned":
+            return r
+    return None
+
+
+def _build_fused_context(pi, cluster, location: str, info: dict,
+                         llm_data: dict | None = None) -> FusedContext:
+    """Combine deterministic tool numbers (authoritative), optional LLM
+    narrative extras, plan-project linkage, and cost estimation.
+
+    Numbers policy (adhisha's V1 principle): infrastructure_gap and
+    data_confidence come from lookup_infrastructure directly — never from the
+    LLM's transcription of it. The LLM contributes population/proposal_context.
+    """
+    from app.config import CATEGORY_COST_ESTIMATES
+    from app.services.need_scoring import apply_complaint_boost
+    llm_data = llm_data or {}
     cluster_size = cluster.cluster_size if cluster else 1
-    pop = ctx.population_affected if ctx else 0
-    infra_gap = ctx.severity_score if ctx else 0.5
-    cost = (ctx.estimated_cost_inr if ctx else None) or 0
-    result = compute_priority_score.invoke({
-        "citizen_demand": min(cluster_size / 50, 1.0),
-        "infrastructure_gap": infra_gap,
-        "population_impact": min(pop / 15000, 1.0),
-        "cost_feasibility": max(0.0, 1.0 - cost / 10_000_000) if cost else 0.5,
-    })
-    bd = result["breakdown"]
+
+    gap = float(info.get("infrastructure_gap",
+                         llm_data.get("infrastructure_gap", 0.5)))
+    conf = info.get("data_confidence") or llm_data.get("data_confidence")
+    if conf not in ("real_data", "estimated", "synthetic"):
+        conf = "estimated"
+    population = (int(llm_data.get("population", 0) or 0)
+                  or int(info.get("population", 0) or 0)
+                  or _DEFAULT_WARD_POPULATION)
+    extras = {k: v for k, v in {**info, **llm_data}.items()
+              if isinstance(v, (int, float, str))}
+
+    plan = _match_plan_project(location, pi.category)
+    if plan:
+        cost = plan.get("estimated_cost") or None
+        extras["plan_id"] = plan["project_id"]
+        extras["plan_title"] = plan["title"]
+    else:
+        cost = CATEGORY_COST_ESTIMATES.get(pi.category)
+        extras["cost_source"] = "category_estimate"
+
+    return FusedContext(
+        category=pi.category, location=location,
+        demand_count=cluster_size,
+        population_affected=population,
+        estimated_cost_inr=cost,
+        data_confidence=conf,
+        # citizen demand lifts severity by up to +0.15 (capped at 10 clustered)
+        severity_score=apply_complaint_boost(gap, cluster_size, 10),
+        category_specific_data=extras,
+        is_existing_plan_project=bool(plan),
+    )
+
+
+def _deterministic_recommendation(state: AgentState, pi, cluster, ctx) -> Recommendation:
+    """LLM-free scoring, relative to all competing projects (adhisha's V1
+    design): demand/population normalised against the strongest project in the
+    store, so rankings differentiate visibly as complaints cluster.
+
+    Project identity rules:
+      - demand that validates an existing plan  → the plan's project_id
+      - otherwise one project PER CLUSTER (not per submission — that used to
+        create N duplicate dashboard cards for N clustered complaints)
+    """
+    from app.services.store import STORE
+    from app.tools.policy_tools import compute_relative_breakdown
+
+    plan_id = ctx.category_specific_data.get("plan_id") if ctx else None
+    if plan_id:
+        project_id = str(plan_id)
+        existing = STORE.get_recommendation(project_id)
+        title = existing.title if existing else pi.summary[:80]
+    elif cluster:
+        project_id = f"proj_{cluster.cluster_id}"
+        title = pi.summary[:80]
+    else:
+        project_id = f"proj_{state.submission_id[:8]}"
+        title = pi.summary[:80]
+
+    result = compute_relative_breakdown(
+        demand_count=cluster.cluster_size if cluster else 1,
+        severity_score=ctx.severity_score if ctx else 0.5,
+        population_affected=ctx.population_affected if ctx else 0,
+        estimated_cost_inr=ctx.estimated_cost_inr if ctx else None,
+        all_contexts=STORE.all_contexts(),
+    )
     return Recommendation(
-        project_id=f"proj_{state.submission_id[:8]}",
-        title=pi.summary[:80],
-        priority_score=round(result["priority_score"] * 100, 2),
-        breakdown=ScoreBreakdown(
-            citizen_demand=round(bd["citizen_demand"] * 100, 2),
-            severity=round(bd["infrastructure_gap"] * 100, 2),
-            population_impact=round(bd["population_impact"] * 100, 2),
-            cost_feasibility=round(bd["cost_feasibility"] * 100, 2),
-        ),
-        is_existing_plan_project=False,
+        project_id=project_id,
+        title=title,
+        priority_score=result["priority_score"],
+        breakdown=ScoreBreakdown(**result["breakdown"]),
+        is_existing_plan_project=bool(plan_id),
+        reason=None,
         explanation=None,
     )
 
@@ -142,10 +232,14 @@ def _deterministic_explanation(rec: Recommendation, cluster, ctx) -> Explanation
         "facility_count": facility_count,
         "category": ctx.category if ctx else "Other",
     })
+    # Confidence reflects data provenance (adhisha's V1 idea): real government
+    # data earns more trust than estimates or labeled-synthetic priors.
+    completeness = {"real_data": 0.9, "estimated": 0.6, "synthetic": 0.4}.get(
+        ctx.data_confidence if ctx else "", 0.5)
     confidence = compute_confidence_score.invoke({
         "priority_score": rec.priority_score,
         "cluster_size": cluster_size,
-        "data_completeness": 0.5,
+        "data_completeness": completeness,
     })
     return Explanation(
         evidence=evidence,
@@ -177,6 +271,17 @@ def route_intake(state: AgentState) -> str:
 def citizen_intelligence_node(state: AgentState) -> dict:
     """Run citizen_intelligence_agent; parse category/location/summary/language."""
     text = state.raw_text or ""
+    # Guard: nothing usable to analyse (e.g. speech transcription failed and
+    # produced an empty transcript). Running the LLM on empty input used to
+    # hallucinate a junk issue that polluted clusters and the dashboard.
+    if not text.strip():
+        reason = state.error or "submission contained no usable text"
+        logger.warning("[citizen_intelligence_node] empty input — skipping analysis (%s)", reason)
+        return {"parsed_issue": ParsedIssue(
+            category="Other", location="unspecified",
+            summary=_NO_CONTENT_MARKER,
+            confidence=0.1, language="en",
+        ), "error": f"no usable input: {reason}"}
     if _llm_unavailable(state):
         logger.warning("[citizen_intelligence_node] LLM unavailable — using fallback")
         return {"parsed_issue": ParsedIssue(
@@ -210,7 +315,7 @@ def citizen_intelligence_node(state: AgentState) -> dict:
 def demand_intelligence_node(state: AgentState) -> dict:
     """Run demand_intelligence_agent; parse cluster info."""
     pi = state.parsed_issue
-    if pi is None:
+    if pi is None or _unusable(pi):
         return {}
     if _llm_unavailable(state):
         logger.warning("[demand_intelligence_node] LLM unavailable — using fallback")
@@ -252,31 +357,23 @@ def demand_intelligence_node(state: AgentState) -> dict:
 def knowledge_fusion_node(state: AgentState) -> dict:
     """Run knowledge_fusion_agent; parse infrastructure gap and context."""
     pi = state.parsed_issue
-    if pi is None:
+    if pi is None or _unusable(pi):
         return {}
     cluster = state.cluster
     location = cluster.center_location if cluster else pi.location
+    # Deterministic numbers first — pure Python + local JSON, no LLM needed.
+    # These are authoritative regardless of what the LLM says below.
+    try:
+        from app.tools.knowledge_tools import lookup_infrastructure
+        info = lookup_infrastructure.invoke({"location": location, "category": pi.category})
+    except Exception as exc:
+        logger.warning("[knowledge_fusion_node] lookup_infrastructure failed: %s", exc)
+        info = {}
+
     if _llm_unavailable(state):
-        logger.warning("[knowledge_fusion_node] LLM unavailable — using lookup tool directly")
-        # lookup_infrastructure is pure Python + local JSON — no LLM needed
-        try:
-            from app.tools.knowledge_tools import lookup_infrastructure
-            info = lookup_infrastructure.invoke({"location": location, "category": pi.category})
-        except Exception:
-            info = {}
-        from app.services.need_scoring import apply_complaint_boost
-        return {"knowledge_context": FusedContext(
-            category=pi.category, location=location,
-            demand_count=cluster.cluster_size if cluster else 1,
-            population_affected=int(info.get("population", 0) or 0) or _DEFAULT_WARD_POPULATION,
-            data_confidence=info.get("data_confidence", "estimated"),
-            severity_score=apply_complaint_boost(
-                float(info.get("infrastructure_gap", 0.5)),
-                cluster.cluster_size if cluster else 1, 10),
-            category_specific_data={k: v for k, v in info.items()
-                                     if isinstance(v, (int, float, str))},
-            is_existing_plan_project=False,
-        ), "error": state.error}
+        logger.warning("[knowledge_fusion_node] LLM unavailable — tool data only")
+        return {"knowledge_context": _build_fused_context(pi, cluster, location, info),
+                "error": state.error}
     prompt = (
         f"Category: {pi.category}\n"
         f"Location: {location}\n\n"
@@ -292,39 +389,14 @@ def knowledge_fusion_node(state: AgentState) -> dict:
         })
         content = _last_message_content(result)
         data = _strip_json(content)
-        raw_conf = data.get("data_confidence")
-        # Citizen demand lifts severity by up to +0.15 (capped at 10 clustered
-        # submissions) — repeated complaints about the same issue now move the
-        # 30-point severity component, not just the 40-point demand component.
-        from app.services.need_scoring import apply_complaint_boost
-        ctx = FusedContext(
-            category=pi.category,
-            location=location,
-            demand_count=cluster.cluster_size if cluster else 1,
-            population_affected=int(data.get("population", 0) or 0) or _DEFAULT_WARD_POPULATION,
-            estimated_cost_inr=None,
-            data_confidence=raw_conf if raw_conf in ("real_data", "estimated", "synthetic") else "estimated",
-            severity_score=apply_complaint_boost(
-                float(data.get("infrastructure_gap", 0.5)),
-                cluster.cluster_size if cluster else 1, 10),
-            category_specific_data={k: v for k, v in data.items()
-                                     if isinstance(v, (int, float, str))},
-            is_existing_plan_project=False,
-        )
+        # Tool numbers are authoritative; LLM contributes population and
+        # narrative extras (proposal_context, road_quality, ...)
+        ctx = _build_fused_context(pi, cluster, location, info, data)
         return {"knowledge_context": ctx}
     except Exception as exc:
-        logger.warning("[knowledge_fusion_node] fallback: %s", exc)
-        if pi:
-            return {"knowledge_context": FusedContext(
-                category=pi.category,
-                location=location,
-                demand_count=1,
-                population_affected=0,
-                data_confidence="estimated",
-                severity_score=0.5,
-                is_existing_plan_project=False,
-            ), "error": f"knowledge_fusion fallback: {exc}"}
-        return {}
+        logger.warning("[knowledge_fusion_node] LLM failed (%s) — tool data only", exc)
+        return {"knowledge_context": _build_fused_context(pi, cluster, location, info),
+                "error": f"knowledge_fusion fallback: {exc}"}
 
 
 def policy_recommendation_node(state: AgentState) -> dict:
@@ -334,6 +406,9 @@ def policy_recommendation_node(state: AgentState) -> dict:
     ctx = state.knowledge_context
     if pi is None:
         return {}
+    if _unusable(pi):
+        logger.warning("[policy_recommendation_node] skipping — no usable input")
+        return {"error": state.error or "no usable input"}
 
     if _llm_unavailable(state):
         logger.warning("[policy_recommendation_node] LLM unavailable — deterministic scoring")
@@ -344,23 +419,45 @@ def policy_recommendation_node(state: AgentState) -> dict:
         STORE.upsert_recommendation(rec)
         return {"recommendation": rec, "error": state.error}
 
+    from app.services.store import STORE
+
     cluster_size = cluster.cluster_size if cluster else 1
     location = (cluster.center_location if cluster else pi.location)
     infra_gap = ctx.severity_score if ctx else 0.5
     pop = ctx.population_affected if ctx else 0
+
+    # Competitive context: show the agent the current leaderboard so its
+    # title/reason reference the actual ranking, not a vacuum.
+    top = STORE.all_recommendations_sorted()[:5]
+    leaderboard = "\n".join(
+        f"  - {r.project_id}: {r.title} (score {r.priority_score})"
+        for r in top) or "  (none yet)"
+    plan_note = ""
+    if ctx and ctx.category_specific_data.get("plan_id"):
+        plan_note = (f"\nNOTE: this demand VALIDATES the existing plan project "
+                     f"{ctx.category_specific_data['plan_id']} "
+                     f"({ctx.category_specific_data.get('plan_title', '')}) — "
+                     "your reason should say citizens are confirming this planned work.")
 
     prompt = (
         f"Category: {pi.category}\n"
         f"Location: {location}\n"
         f"Citizen demand (cluster_size): {cluster_size}\n"
         f"Infrastructure gap (0-1): {infra_gap}\n"
-        f"Population affected: {pop}\n\n"
+        f"Population affected: {pop}\n"
+        f"Current top-ranked projects:\n{leaderboard}\n"
+        f"{plan_note}\n\n"
+        f"Issue summary: {pi.summary}\n\n"
         "Use compute_priority_score (and rank_projects if multiple candidates) to compute scores. "
         "The tool returns values on a 0-1 scale — multiply priority_score and every breakdown "
         "component by 100 before returning. "
-        "Return ONLY valid JSON with keys: project_id, title, priority_score (0-100), "
-        "breakdown (citizen_demand 0-40, severity 0-30 = tool's infrastructure_gap x 100, "
-        "population_impact 0-20, cost_feasibility 0-10), reason."
+        "Return ONLY valid JSON with keys: project_id, "
+        "title (an actionable WORKS title naming the SPECIFIC problem and place, "
+        "e.g. 'Pothole Repair and Road Resurfacing - Kesarpur Main Road' — "
+        "never generic phrases like 'Address Civic Needs'), "
+        "priority_score (0-100), breakdown (citizen_demand 0-40, severity 0-30, "
+        "population_impact 0-20, cost_feasibility 0-10), "
+        "reason (one sentence comparing this project against the current top-ranked ones)."
     )
     try:
         result = policy_recommendation_agent.invoke({
@@ -368,19 +465,19 @@ def policy_recommendation_node(state: AgentState) -> dict:
         })
         content = _last_message_content(result)
         data = _strip_json(content)
-        project_id = data.get("project_id", f"proj_{state.submission_id[:8]}")
-        # Scores are ALWAYS recomputed deterministically from the pipeline
-        # inputs — the LLM contributes only project identity and title.
-        # (GPT once reported the formula weight 0.40 as the component score,
-        # producing citizen_demand=40 alongside priority_score=5.8.)
-        rec = _deterministic_recommendation(state, pi, cluster, ctx).model_copy(update={
-            "project_id": project_id,
-            "title": data.get("title", pi.summary[:80]),
+        # Scores AND project identity are computed deterministically —
+        # identity comes from the plan match or the cluster (one project per
+        # cluster; per-submission IDs used to create N duplicate cards).
+        # The LLM contributes only the human title and the reason.
+        base = _deterministic_recommendation(state, pi, cluster, ctx)
+        rec = base.model_copy(update={
+            # keep the official plan title when demand validates a plan
+            "title": base.title if base.is_existing_plan_project
+                     else (data.get("title") or base.title),
+            "reason": (str(data.get("reason", "")).strip() or None),
         })
-        # Write to in-memory store
-        from app.services.store import STORE
         if ctx:
-            STORE.upsert_context(project_id, ctx)
+            STORE.upsert_context(rec.project_id, ctx)
         STORE.upsert_recommendation(rec)
         return {"recommendation": rec}
     except Exception as exc:
@@ -421,7 +518,11 @@ def explainability_node(state: AgentState) -> dict:
         f"Population impact score: {rec.breakdown.population_impact}\n"
         f"Cost feasibility score: {rec.breakdown.cost_feasibility}\n"
         f"Cluster size: {cluster.cluster_size if cluster else 'unknown'}\n"
-        f"Infrastructure gap: {ctx.severity_score if ctx else 'unknown'}\n\n"
+        f"Infrastructure gap: {ctx.severity_score if ctx else 'unknown'}\n"
+        f"Data confidence: {ctx.data_confidence if ctx else 'unknown'}\n"
+        f"{'This project is part of the existing local development plan, now validated by citizen demand.' if rec.is_existing_plan_project else ''}\n\n"
+        "When calling compute_confidence_score, pass data_completeness = 0.9 for "
+        "real_data, 0.6 for estimated, 0.4 for synthetic. "
         "Generate evidence bullets and a 2-3 sentence explanation readable by an MP. "
         "Return JSON with keys: evidence (list of 2-3 strings), summary (string), confidence_score (0-1)."
     )
