@@ -1,11 +1,21 @@
-export default function Hero() {
+export default function Hero({
+  hidden,
+}: {
+  hidden: boolean;
+}) {
   return (
-    <section className="mb-20 text-center">
+    <section
+      className={`text-center transition-all duration-500 ${
+        hidden
+          ? "pointer-events-none -translate-y-6 opacity-0 h-0 overflow-hidden mb-0"
+          : "mb-20 translate-y-0 opacity-100"
+      }`}
+    >
       <div className="mb-6 flex justify-center">
         <img
           src="/images/emblem.png"
           alt="National Emblem"
-          className="mx-auto mb-2 h-20 w-auto opacity-90"
+          className="mx-auto h-20 w-auto opacity-90"
         />
       </div>
 
@@ -13,7 +23,7 @@ export default function Hero() {
         People&apos;s Voice.
       </h1>
 
-      <h2 className="-mt-2 text-[32px] font-semibold text-[#455F87]">
+      <h2 className="-mt-2 text-[34px] font-semibold text-[#455F87]">
         AI-Powered Decisions.
       </h2>
 

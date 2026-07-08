@@ -1,11 +1,18 @@
+"use client";
+
 import {
-  ArrowLeft,
-  ArrowRight,
   MapPin,
   LocateFixed,
 } from "lucide-react";
 
+import { useIssueStore } from "@/store/issueStore";
+
 export default function StepTwo() {
+  const {
+    location,
+    setLocation,
+  } = useIssueStore();
+
   return (
     <>
       <div className="mb-8">
@@ -30,7 +37,10 @@ export default function StepTwo() {
             className="h-full w-full object-cover"
           />
 
-          <button className="absolute bottom-4 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg">
+          <button
+            type="button"
+            className="absolute bottom-4 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg"
+          >
             <LocateFixed />
           </button>
 
@@ -38,40 +48,38 @@ export default function StepTwo() {
 
         {/* Location */}
 
-        <div className="flex items-start gap-4 bg-[#f2f4f7] p-6">
+        <div className="bg-[#f2f4f7] p-6">
 
-          <MapPin
-            className="mt-1 text-[#FFB703]"
-            fill="#FFB703"
-          />
+          <div className="mb-4 flex items-start gap-4">
 
-          <div>
-            <h3 className="text-xl font-semibold">
-              Kalyan Nagar, Bangalore
-            </h3>
+            <MapPin
+              className="mt-1 text-[#FFB703]"
+              fill="#FFB703"
+            />
 
-            <p className="text-[#43474b]">
-              Near 4th Block Bus Stand, Pin: 560043
-            </p>
+            <div>
+              <h3 className="text-xl font-semibold">
+                Issue Location
+              </h3>
+
+              <p className="text-[#43474b]">
+                Enter the address or landmark where the issue exists.
+              </p>
+            </div>
+
           </div>
+
+          <input
+            type="text"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="e.g. Near 4th Block Bus Stand, Kalyan Nagar, Bangalore"
+            className="w-full rounded-xl border border-gray-200 bg-white p-4 outline-none focus:border-[#FFB703]"
+          />
 
         </div>
 
       </div>
-
-      <div className="flex justify-between">
-
-  <button className="flex items-center gap-2">
-    <ArrowLeft />
-    Back
-  </button>
-
-  <button className="flex items-center gap-2 rounded-full bg-black px-8 py-4 text-white">
-    Next: Review
-    <ArrowRight />
-  </button>
-
-</div>
     </>
   );
 }

@@ -88,7 +88,7 @@ export default function Navbar() {
                 {item.label}
 
                 {active && (
-                  <span className="absolute bottom-0 left-0 h-[2px] w-full rounded-full bg-black" />
+                  <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-black" />
                 )}
               </Link>
             );

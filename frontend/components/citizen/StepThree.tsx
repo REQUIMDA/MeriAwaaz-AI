@@ -97,23 +97,6 @@ export default function StepThree() {
 
       {/* Buttons */}
 
-      <div className="space-y-4">
-
-        <button className="flex w-full items-center justify-center gap-3 rounded-full bg-[#FFB703] py-5 font-semibold text-black shadow-lg">
-          <Send size={18} />
-          Submit Issue Now
-        </button>
-
-        <button className="w-full rounded-full border py-4">
-          Edit Details
-        </button>
-
-        <button className="flex items-center gap-2">
-          <ArrowLeft size={18} />
-          Back
-        </button>
-
-      </div>
     </>
   );
 }

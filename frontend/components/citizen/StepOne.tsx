@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Camera,
   FileText,
@@ -10,8 +9,9 @@ import {
   Bolt,
   Stethoscope,
   Construction,
-  ArrowRight,
 } from "lucide-react";
+
+import { useIssueStore } from "@/store/issueStore";
 
 const categories = [
   {
@@ -33,7 +33,16 @@ const categories = [
 ];
 
 export default function StepOne() {
-  const [selected, setSelected] = useState("");
+  const {
+    category,
+    description,
+    photo,
+    audio,
+    setCategory,
+    setDescription,
+    setPhoto,
+    setAudio,
+  } = useIssueStore();
 
   return (
     <>
@@ -47,11 +56,9 @@ export default function StepOne() {
         </p>
       </div>
 
-      {/* Upload Cards */}
+      {/* Description */}
 
       <div className="mb-8 grid gap-4 md:grid-cols-2">
-
-        {/* Description */}
 
         <div className="rounded-xl border bg-white p-6 md:col-span-2">
 
@@ -64,6 +71,8 @@ export default function StepOne() {
 
           <textarea
             rows={6}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             placeholder="Briefly describe what needs attention..."
             className="w-full rounded-xl bg-[#f7f9fc] p-4 outline-none"
           />
@@ -86,13 +95,28 @@ export default function StepOne() {
             Speak in any language.
           </p>
 
-          <button className="rounded-full bg-black px-6 py-3 text-white">
-            Start Recording
-          </button>
+          <label className="cursor-pointer rounded-full bg-black px-6 py-3 text-white">
+            Upload Audio
+
+            <input
+              type="file"
+              accept="audio/*"
+              className="hidden"
+              onChange={(e) =>
+                setAudio(e.target.files?.[0] ?? null)
+              }
+            />
+          </label>
+
+          {audio && (
+            <p className="mt-4 text-sm text-green-600">
+              ✓ {audio.name}
+            </p>
+          )}
 
         </div>
 
-        {/* Camera */}
+        {/* Photo */}
 
         <div className="rounded-xl border bg-white p-8 text-center">
 
@@ -108,12 +132,27 @@ export default function StepOne() {
             A picture helps us understand better.
           </p>
 
-          <button className="rounded-full border border-black px-6 py-3">
+          <label className="cursor-pointer rounded-full border border-black px-6 py-3">
             <span className="flex items-center gap-2">
               <Plus size={16} />
-              Open Camera
+              Choose Photo
             </span>
-          </button>
+
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) =>
+                setPhoto(e.target.files?.[0] ?? null)
+              }
+            />
+          </label>
+
+          {photo && (
+            <p className="mt-4 text-sm text-green-600">
+              ✓ {photo.name}
+            </p>
+          )}
 
         </div>
 
@@ -125,7 +164,7 @@ export default function StepOne() {
         Select Category
       </h3>
 
-      <div className="mb-12 grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
 
         {categories.map((cat) => {
           const Icon = cat.icon;
@@ -133,9 +172,10 @@ export default function StepOne() {
           return (
             <button
               key={cat.name}
-              onClick={() => setSelected(cat.name)}
+              type="button"
+              onClick={() => setCategory(cat.name)}
               className={`rounded-xl border p-6 transition ${
-                selected === cat.name
+                category === cat.name
                   ? "border-[#FFB703] bg-[#ffdea9]"
                   : "bg-white hover:bg-[#ffdea9]/40"
               }`}
@@ -148,13 +188,6 @@ export default function StepOne() {
         })}
 
       </div>
-
-      <div className="flex justify-end">
-  <button className="flex items-center gap-2 rounded-full bg-black px-8 py-4 text-white">
-    Next: Location
-    <ArrowRight size={18} />
-  </button>
-</div>
     </>
   );
 }
