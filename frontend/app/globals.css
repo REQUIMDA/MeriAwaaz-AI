@@ -40,6 +40,14 @@ body{
     border:1px solid rgba(230,237,243,1);
 }
 
+.bento-item{
+    background:rgba(255,255,255,.8);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(230,237,243,1);
+    border-radius:1rem;
+    padding:1.5rem;
+}
+
 .transition-all-custom{
     transition:all .5s cubic-bezier(.4,0,.2,1);
 }

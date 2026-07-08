@@ -324,8 +324,7 @@ export default function CitizenIssuesPage() {
 
       {error && (
         <div className="mb-6 rounded-2xl border border-[#FFDAD6] bg-[#FFF3F2] p-4 text-sm text-[#BA1A1A]">
-          Could not reach the backend ({error}). Start the API at{" "}
-          <code>http://localhost:8000</code> and refresh.
+          Could not reach the backend. {error}
         </div>
       )}
 
