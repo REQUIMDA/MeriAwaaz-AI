@@ -37,6 +37,7 @@ from app.api.recommendations import router as recommendations_router
 from app.api.explain import router as explain_router
 from app.api.dashboard import router as dashboard_router
 from app.api.trace import router as trace_router
+from app.api.heatmap import router as heatmap_router
 from app.services.database import init_db
 from app.services.store import STORE
 
@@ -105,6 +106,21 @@ app.include_router(recommendations_router)
 app.include_router(explain_router)
 app.include_router(dashboard_router)
 app.include_router(trace_router)
+app.include_router(heatmap_router)
+
+
+# Serve the constituency heatmap page same-origin so its fetch('/api/heatmap')
+# needs no CORS exception. Open http://localhost:8000/heatmap after starting.
+from fastapi.responses import FileResponse  # noqa: E402
+
+_HEATMAP_PAGE = Path(__file__).parent / "static" / "heatmap.html"
+
+
+@app.get("/heatmap", include_in_schema=False)
+def heatmap_page():
+    if _HEATMAP_PAGE.exists():
+        return FileResponse(str(_HEATMAP_PAGE))
+    return JSONResponse(status_code=404, content={"detail": "heatmap.html not found"})
 
 
 @app.get("/")

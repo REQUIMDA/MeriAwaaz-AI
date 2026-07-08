@@ -11,6 +11,8 @@ from pydantic import BaseModel
 from app.schemas.models import AgentState, ParsedIssue, Recommendation, ScoreBreakdown
 from app.services import database, chroma_client
 from app.services.store import STORE
+from app.services.decompose import decompose_text
+from app.agents import speech_processing, vision_processing
 
 UPLOADS_DIR = Path(__file__).resolve().parent.parent / "data" / "uploads"
 
@@ -94,6 +96,47 @@ def _build_recommendation(cluster_id: str) -> Optional[Recommendation]:
         return None
 
 
+def _preprocess_media(input_type: str, sid: str, text: str,
+                      saved_path: Optional[str]) -> tuple[str, Optional[str], Optional[str]]:
+    """Turn a voice/image submission into plain text BEFORE decomposition.
+
+    Runs the speech/vision node functions directly (they are plain functions),
+    so we get the transcript / image analysis without running the rest of the
+    pipeline. Returns (base_text, audio_url, error).
+    """
+    pre_state = AgentState(submission_id=sid, input_type=input_type,
+                           raw_text=text or "", media_file_path=saved_path)
+    try:
+        pre = (speech_processing.run(pre_state) if input_type == "voice"
+               else vision_processing.run(pre_state))
+    except Exception as exc:
+        logger.exception("Media preprocessing failed for %s", sid)
+        return (text or ""), None, f"media preprocessing failed: {exc}"
+    return (pre.get("raw_text") or "").strip(), pre.get("audio_url"), pre.get("error")
+
+
+def _run_pipeline_for_issue(sid: str, idx: int, issue_text: str):
+    """Run the (single-topic) pipeline for one decomposed issue.
+
+    Returns (row_id, parsed_issue, recommendation, error).
+    """
+    row_id = sid if idx == 0 else f"{sid}#{idx}"
+    state = AgentState(submission_id=row_id, input_type="text", raw_text=issue_text)
+    try:
+        result = _pipeline.invoke(state, config={"configurable": {"thread_id": row_id}})
+    except Exception as exc:
+        logger.exception("Pipeline crashed for issue %s", row_id)
+        return row_id, None, None, f"pipeline crashed: {exc}"
+
+    pi = result.get("parsed_issue") if isinstance(result, dict) else None
+    rec = result.get("recommendation") if isinstance(result, dict) else None
+    err = result.get("error") if isinstance(result, dict) else None
+    return (row_id,
+            pi if isinstance(pi, ParsedIssue) else None,
+            rec if isinstance(rec, Recommendation) else None,
+            err)
+
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -106,24 +149,19 @@ async def create_submission(
     audio: Optional[UploadFile] = File(None),
 ):
     """
-    Accept a citizen submission (text, voice, or photo), run the pipeline,
-    persist to SQLite and ChromaDB, and return the result.
+    Accept a citizen submission (text, voice, or photo).
 
-    Send as multipart/form-data:
-      - channel: "text" | "voice" | "image"
-      - text: the citizen's message (empty for photo-only submissions)
-      - photo: image file (optional)
+    A submission that raises MULTIPLE problems (e.g. "potholes AND a clinic
+    medicine shortage") is split into one complaint per problem; each is run
+    through the pipeline and updates or creates its OWN demand cluster /
+    project. All resulting recommendations are returned.
     """
     sid = str(uuid.uuid4())
 
-    # Normalise channel → input_type understood by AgentState
     channel_map = {"text": "text", "voice": "voice", "photo": "image", "image": "image"}
     input_type = channel_map.get(channel, "text")
 
-    # Robustness: infer the type from what was actually attached. Users often
-    # leave channel at its default while uploading media — previously an audio
-    # file with channel="text" was silently ignored (audio_url: null) and the
-    # pipeline ran on empty text, producing garbage.
+    # Infer type from what was actually attached (users often leave channel=text)
     if audio and audio.filename and input_type != "voice":
         input_type = "voice"
     elif photo and photo.filename and input_type == "text":
@@ -131,112 +169,105 @@ async def create_submission(
 
     UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Save uploaded photo to disk
+    # Save uploaded photo
     photo_url: Optional[str] = None
     saved_path: Optional[str] = None
     if photo and photo.filename:
         ext = Path(photo.filename).suffix.lower() or ".jpg"
-        filename = f"{sid}{ext}"
-        dest = UPLOADS_DIR / filename
+        dest = UPLOADS_DIR / f"{sid}{ext}"
         with dest.open("wb") as f:
             shutil.copyfileobj(photo.file, f)
-        photo_url = f"/uploads/{filename}"
+        photo_url = f"/uploads/{dest.name}"
         saved_path = str(dest)
 
-    # Save uploaded audio to disk (voice submissions)
+    # Save uploaded audio
     audio_url: Optional[str] = None
     if audio and audio.filename and input_type == "voice":
         ext = Path(audio.filename).suffix.lower() or ".mp3"
-        audio_filename = f"{sid}_audio{ext}"
-        audio_dest = UPLOADS_DIR / audio_filename
-        with audio_dest.open("wb") as f:
+        dest = UPLOADS_DIR / f"{sid}_audio{ext}"
+        with dest.open("wb") as f:
             shutil.copyfileobj(audio.file, f)
-        audio_url = f"/uploads/{audio_filename}"
-        saved_path = str(audio_dest)   # voice agent reads from here
+        audio_url = f"/uploads/{dest.name}"
+        saved_path = str(dest)
 
-    recommendation = None
-    parsed_issue = None
-    pipeline_error = None
+    pipeline_error: Optional[str] = None
 
-    if _PIPELINE_AVAILABLE:
-        state = AgentState(
-            submission_id=sid,
-            input_type=input_type,
-            raw_text=text,
-            media_file_path=saved_path,
-        )
-        try:
-            result = _pipeline.invoke(state, config={"configurable": {"thread_id": sid}})
-        except Exception as exc:
-            logger.exception("Pipeline crashed for submission %s", sid)
-            pipeline_error = f"pipeline crashed: {exc}"
-            result = None
+    # ── Phase 1: obtain plain text (transcribe / describe media) ────────────
+    base_text = text or ""
+    if _PIPELINE_AVAILABLE and input_type in ("voice", "image"):
+        base_text, pre_audio_url, pre_err = _preprocess_media(input_type, sid, text, saved_path)
+        audio_url = audio_url or pre_audio_url
+        pipeline_error = pipeline_error or pre_err
 
-        if isinstance(result, dict):
-            pi = result.get("parsed_issue")
-            parsed_issue = pi if isinstance(pi, ParsedIssue) else None
-            rec = result.get("recommendation")
-            recommendation = rec if isinstance(rec, Recommendation) else None
-            # speech_processing may set audio_url on the state
-            if not audio_url:
-                audio_url = result.get("audio_url")
-            pipeline_error = pipeline_error or result.get("error")
-        elif result is not None:
-            parsed_issue = getattr(result, "parsed_issue", None)
-            recommendation = getattr(result, "recommendation", None)
-            if not audio_url:
-                audio_url = getattr(result, "audio_url", None)
-            pipeline_error = pipeline_error or getattr(result, "error", None)
+    # ── Phase 2: split into topics, run the pipeline per topic ──────────────
+    processed: list[tuple] = []          # (row_id, issue_text, parsed_issue, recommendation)
+    recommendations: list[Recommendation] = []
 
-    # Use the text that actually ran through the pipeline (vision agent may have
-    # replaced it with a description)
-    effective_text = text or (parsed_issue.summary if parsed_issue else "")
+    if _PIPELINE_AVAILABLE and base_text.strip():
+        for idx, issue_text in enumerate(decompose_text(base_text)):
+            row_id, pi, rec, err = _run_pipeline_for_issue(sid, idx, issue_text)
+            pipeline_error = pipeline_error or err
+            processed.append((row_id, issue_text, pi, rec))
+            if rec is not None:
+                recommendations.append(rec)
 
-    # Persist to SQLite
-    database.insert_submission({
-        "id": sid,
-        "created_at": datetime.utcnow().isoformat(),
-        "input_type": input_type,
-        "raw_text": effective_text,
-        "category": parsed_issue.category if parsed_issue else None,
-        "location": parsed_issue.location if parsed_issue else None,
-        "summary": parsed_issue.summary if parsed_issue else None,
-        "confidence": parsed_issue.confidence if parsed_issue else None,
-        "language": parsed_issue.language if parsed_issue else None,
-        "cluster_id": recommendation.project_id if recommendation else None,
-        "photo_url": photo_url,
-        "video_url": None,
-        "audio_url": audio_url,
-    })
+    # ── Persist: one submissions row per topic; index each in ChromaDB ──────
+    now = datetime.utcnow().isoformat()
+    if processed:
+        for i, (row_id, issue_text, pi, rec) in enumerate(processed):
+            first = (i == 0)
+            searchable = (pi.summary if pi else issue_text) or "submission"
+            database.insert_submission({
+                "id": row_id,
+                "created_at": now,
+                "input_type": input_type if first else "text",
+                "raw_text": issue_text,
+                "category": pi.category if pi else None,
+                "location": pi.location if pi else None,
+                "summary": pi.summary if pi else None,
+                "confidence": pi.confidence if pi else None,
+                "language": pi.language if pi else None,
+                "cluster_id": rec.project_id if rec else None,
+                "photo_url": photo_url if first else None,
+                "video_url": None,
+                "audio_url": audio_url if first else None,
+            })
+            # Index each topic separately so future submissions cluster per-topic.
+            try:
+                chroma_client.add_submission(
+                    submission_id=row_id,
+                    text=searchable,
+                    metadata={
+                        "category": pi.category if pi else "Other",
+                        "location": pi.location if pi else "unspecified",
+                    },
+                )
+            except Exception as exc:
+                logger.exception("ChromaDB indexing failed for %s", row_id)
+                try:
+                    database.log_agent(row_id, "chroma_indexing", "error", 0, str(exc)[:2000])
+                except Exception:
+                    pass
+    else:
+        # Nothing ran (no usable text or pipeline unavailable) — still record it.
+        database.insert_submission({
+            "id": sid, "created_at": now, "input_type": input_type,
+            "raw_text": base_text or text or "", "category": None, "location": None,
+            "summary": None, "confidence": None, "language": None, "cluster_id": None,
+            "photo_url": photo_url, "video_url": None, "audio_url": audio_url,
+        })
 
-    # Add to ChromaDB for future similarity search.
-    # Never let an embedding failure 500 the whole request — the submission is
-    # already persisted; it just won't be findable by similarity search.
-    searchable_text = effective_text or "photo submission"
-    try:
-        chroma_client.add_submission(
-            submission_id=sid,
-            text=searchable_text,
-            metadata={
-                "category": parsed_issue.category if parsed_issue else "Other",
-                "location": parsed_issue.location if parsed_issue else "unspecified",
-            },
-        )
-    except Exception as exc:
-        logger.exception("ChromaDB indexing failed for submission %s", sid)
-        try:
-            database.log_agent(sid, "chroma_indexing", "error", 0, str(exc)[:2000])
-        except Exception:
-            pass
-
+    primary = recommendations[0] if recommendations else None
     return {
-        "status": "processed" if _PIPELINE_AVAILABLE and not pipeline_error else
-                  ("degraded" if _PIPELINE_AVAILABLE else "stored"),
+        "status": ("processed" if (_PIPELINE_AVAILABLE and recommendations and not pipeline_error)
+                   else ("degraded" if _PIPELINE_AVAILABLE else "stored")),
         "submission_id": sid,
         "photo_url": photo_url,
         "audio_url": audio_url,
         "error": pipeline_error,
-        "recommendation": recommendation.model_dump() if recommendation else None,
+        "topics": len(processed),
+        "recommendation": primary.model_dump() if primary else None,
+        "recommendations": [r.model_dump() for r in recommendations],
     }
 
 

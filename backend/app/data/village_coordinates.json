@@ -1,0 +1,10 @@
+{
+  "_comment": "Gazetteer: location name (as extracted by the pipeline, case-insensitive) -> [lat, lon]. Demo villages are placed at plausible distinct points within Nagpur district. In production this is replaced by LGD village codes + Census coordinates. Locations not listed here are reported as 'unmapped' by /api/heatmap and do not appear on the map.",
+  "nagpur": [21.1458, 79.0882],
+  "kesarpur": [21.2320, 79.0010],
+  "rampur": [21.0510, 79.1520],
+  "sultanpur": [21.2030, 79.2540],
+  "bhelupur": [21.0020, 78.9530],
+  "khandwa": [21.8257, 76.3521],
+  "maharashtra": [21.1458, 79.0882]
+}

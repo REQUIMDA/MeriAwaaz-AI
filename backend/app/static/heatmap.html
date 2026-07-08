@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MeriAwaaz AI — Constituency Heatmap</title>
+
+<!-- Leaflet (free, open source) + OpenStreetMap tiles (free, no API key, no billing) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --navy: #0b1b33; --navy-2: #12264a; --accent: #e8a33d;
+    --card: #ffffff; --ink: #16213a; --muted: #6b7791; --line: #e6eaf2;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: Inter, system-ui, sans-serif; }
+
+  header {
+    height: 56px; background: var(--navy); color: #fff;
+    display: flex; align-items: center; gap: 12px; padding: 0 18px;
+    position: relative; z-index: 1100; box-shadow: 0 2px 10px rgba(11,27,51,.35);
+  }
+  header .emblem {
+    width: 30px; height: 30px; border-radius: 7px; background: var(--navy-2);
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+    border: 1px solid rgba(255,255,255,.14);
+  }
+  header h1 { font-size: 16px; font-weight: 700; letter-spacing: .2px; }
+  header .sub { font-size: 11px; color: #93a4c4; margin-top: 1px; }
+  header .right { margin-left: auto; font-size: 11px; color: #93a4c4; display: flex; align-items: center; gap: 8px; }
+  header .right .src { padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(255,255,255,.16);
+                       background: rgba(255,255,255,.06); }
+  header .right .src.live { color: #7ee0a5; border-color: rgba(126,224,165,.4); }
+  header .right .src.demo { color: #f0c27a; border-color: rgba(240,194,122,.4); }
+  header .btn {
+    font: inherit; font-size: 11px; font-weight: 700; color: #cfe0ff; cursor: pointer;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16);
+    padding: 5px 11px; border-radius: 8px;
+  }
+  header .btn:hover { background: rgba(255,255,255,.16); }
+
+  #map { position: absolute; top: 56px; bottom: 0; left: 0; right: 0; background: #dfe8ef; }
+
+  .town-dot {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%; border-radius: 50%;
+    color: #fff; font-weight: 800; font-size: 12px; font-family: Inter, sans-serif;
+    border: 2.5px solid #fff;
+    box-shadow: 0 0 0 4px var(--halo, rgba(0,0,0,.15)), 0 3px 10px rgba(0,0,0,.35);
+    text-shadow: 0 1px 2px rgba(0,0,0,.45); cursor: pointer; transition: transform .12s ease;
+  }
+  .town-dot:hover { transform: scale(1.12); }
+
+  .float-card {
+    position: absolute; z-index: 1000; background: var(--card);
+    border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(11,27,51,.14); padding: 12px 14px;
+  }
+  #filters { top: 72px; left: 14px; max-width: 280px; }
+  #filters .t { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--line); background: #f4f6fa; color: var(--muted);
+    cursor: pointer; user-select: none; transition: all .12s;
+  }
+  .chip.on { background: var(--navy); border-color: var(--navy); color: #fff; }
+
+  #legend { bottom: 22px; left: 14px; padding: 10px 14px; }
+  #legend .t { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 6px; }
+  #legend .bar { width: 190px; height: 10px; border-radius: 6px;
+    background: linear-gradient(90deg, hsl(120,72%,42%), hsl(60,85%,50%), hsl(0,78%,50%)); }
+  #legend .lbl { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  #status { top: 72px; right: 14px; font-size: 11px; color: var(--muted); display: none; align-items: center; gap: 7px; }
+  #status.show { display: flex; }
+  .spin { width: 12px; height: 12px; border: 2px solid var(--line); border-top-color: var(--navy);
+          border-radius: 50%; animation: sp 1s linear infinite; }
+  @keyframes sp { to { transform: rotate(360deg); } }
+
+  .leaflet-popup-content-wrapper { border-radius: 16px; box-shadow: 0 14px 44px rgba(11,27,51,.28); padding: 0; }
+  .leaflet-popup-content { margin: 0; width: 330px !important; font-family: Inter, sans-serif; }
+  .leaflet-popup-tip { box-shadow: 0 4px 14px rgba(11,27,51,.2); }
+
+  .pw { overflow: hidden; border-radius: 16px; }
+  .pw-head { background: var(--navy); color: #fff; padding: 12px 16px 10px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .pw-head .town { font-size: 15px; font-weight: 800; }
+  .pw-head .state { font-size: 11px; color: #93a4c4; margin-top: 1px; }
+  .pw-count { font-size: 10.5px; font-weight: 700; background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.18); padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+
+  .pw-tabs { display: flex; gap: 5px; padding: 9px 12px 0; flex-wrap: wrap; }
+  .pw-tab { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--muted); background: #f4f6fa; cursor: pointer; }
+  .pw-tab.on { background: var(--accent); border-color: var(--accent); color: #2b1c04; }
+
+  .pw-body { padding: 12px 16px 14px; max-height: 380px; overflow-y: auto; }
+  .pw-title { font-size: 13.5px; font-weight: 700; color: var(--ink); line-height: 1.35; }
+  .pw-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 10px; }
+  .badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+  .badge.id   { background: #eef2ff; color: #4051b5; font-family: ui-monospace, monospace; }
+  .badge.cat  { background: #e9f6ec; color: #1c7c33; }
+
+  .pw-desc { font-size: 12px; color: #3d4a66; line-height: 1.5; margin-bottom: 10px; }
+
+  /* Stats strip: submissions + affected population */
+  .pw-stats { display: flex; gap: 8px; margin-bottom: 12px; }
+  .pw-stats .stat { flex: 1; background: #f4f6fa; border: 1px solid var(--line);
+                    border-radius: 10px; padding: 7px 10px; }
+  .pw-stats .stat span { display: block; font-size: 9px; font-weight: 700; letter-spacing: .4px;
+                         color: var(--muted); text-transform: uppercase; margin-bottom: 2px; }
+  .pw-stats .stat b { font-size: 15px; color: var(--ink); font-weight: 800; }
+
+  .pw-expl { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-bottom: 12px;
+    padding: 8px 10px; background: #f7f9fc; border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; }
+
+  .pw-score { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  .pw-score .n { font-size: 26px; font-weight: 800; color: var(--ink); }
+  .pw-score .l { font-size: 10.5px; font-weight: 700; letter-spacing: .8px; color: var(--muted); }
+
+  .pbar { margin-bottom: 7px; }
+  .pbar .row { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted); margin-bottom: 3px; }
+  .pbar .row b { color: var(--ink); font-weight: 700; }
+  .pbar .track { height: 6px; background: #eef1f6; border-radius: 4px; overflow: hidden; }
+  .pbar .fill { height: 100%; border-radius: 4px; background: var(--navy); }
+  .pbar.sev .fill { background: var(--sevcol, var(--navy)); }
+
+  .pw-nav { display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-top: 1px solid var(--line); background: #fafbfd; }
+  .pw-nav button { font-family: Inter, sans-serif; font-size: 11.5px; font-weight: 700;
+    border: 1px solid var(--line); background: #fff; color: var(--ink);
+    padding: 5px 12px; border-radius: 8px; cursor: pointer; }
+  .pw-nav button:disabled { opacity: .35; cursor: default; }
+  .pw-nav .pg { font-size: 11px; color: var(--muted); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="emblem">🏛️</div>
+  <div>
+    <h1>Constituency Heatmap</h1>
+    <div class="sub">MeriAwaaz AI · MP Portal</div>
+  </div>
+  <div class="right">
+    <button class="btn" id="refresh">↻ Refresh</button>
+    <button class="btn" id="fitIndia">India view</button>
+    <button class="btn" id="fitData">Zoom to constituency</button>
+    <span class="src" id="srcTag">…</span>
+  </div>
+</header>
+
+<div id="map"></div>
+
+<div id="filters" class="float-card">
+  <div class="t">ISSUE CATEGORIES</div>
+  <div class="chips" id="chipBox"></div>
+</div>
+
+<div id="legend" class="float-card">
+  <div class="t">SEVERITY</div>
+  <div class="bar"></div>
+  <div class="lbl"><span>Low</span><span>Moderate</span><span>Critical</span></div>
+</div>
+
+<div id="status" class="float-card"><div class="spin"></div><span id="statusTxt">Loading…</span></div>
+
+<script>
+/* =========================================================================
+ * MeriAwaaz AI — Constituency Heatmap
+ * One marker per town; every clustered project for that town (all categories)
+ * lives behind that single marker. Marker colour ∝ worst project severity.
+ * Data: live GET /api/heatmap (auto-refreshed) → embedded fallback below.
+ * All map tech is free: Leaflet + OpenStreetMap tiles + Nominatim geocoder.
+ * ========================================================================= */
+
+const API_URL = '/api/heatmap';       // same-origin when served at /heatmap
+const REFRESH_MS = 12000;             // poll interval to sync with new submissions
+
+// Embedded fallback = the real MeriAwaaz constituency (Nagpur, Maharashtra).
+// Used when the backend is not reachable (e.g. opening this file directly).
+window.HEATMAP_DATA = {
+  "towns": [
+    { "name": "Kesarpur", "state": "Maharashtra", "lat": 21.232, "lng": 79.001, "projects": [
+      { "id": "plan_002", "title": "Upgrade of Primary Health Sub-Centre - Kesarpur", "category": "Healthcare",
+        "description": "Upgrade of the Primary Health Sub-Centre in Kesarpur, including a maternal-care wing and resident staff.",
+        "submission_count": 0, "population_affected": 1450,
+        "priority_score": 41.1, "breakdown": { "citizen_demand": 0, "severity": 15, "population_impact": 17.9, "cost_feasibility": 8.2 }, "is_existing_plan_project": true },
+      { "id": "plan_006", "title": "Solar street lighting - Kesarpur main road", "category": "Electricity",
+        "description": "Solar street lighting along Kesarpur's main road for night-time safety.",
+        "submission_count": 0, "population_affected": 760,
+        "priority_score": 33.18, "breakdown": { "citizen_demand": 0, "severity": 15, "population_impact": 9.38, "cost_feasibility": 8.8 }, "is_existing_plan_project": true }
+    ]},
+    { "name": "Bhelupur", "state": "Maharashtra", "lat": 21.002, "lng": 78.953, "projects": [
+      { "id": "plan_004", "title": "Overhead water tank and pipeline - Bhelupur", "category": "Water",
+        "description": "Overhead water tank and piped-water network extension for Bhelupur.",
+        "submission_count": 0, "population_affected": 1620,
+        "priority_score": 40.9, "breakdown": { "citizen_demand": 0, "severity": 15, "population_impact": 20.0, "cost_feasibility": 5.9 }, "is_existing_plan_project": true },
+      { "id": "plan_008", "title": "Community hall and digital kiosk - Bhelupur", "category": "Other",
+        "description": "Community hall with a digital services kiosk for Bhelupur.",
+        "submission_count": 0, "population_affected": 550,
+        "priority_score": 30.19, "breakdown": { "citizen_demand": 0, "severity": 15, "population_impact": 6.79, "cost_feasibility": 8.4 }, "is_existing_plan_project": true }
+    ]},
+    { "name": "Sultanpur", "state": "Maharashtra", "lat": 21.203, "lng": 79.254, "projects": [
+      { "id": "plan_003", "title": "Repair and widening of main village road - Sultanpur", "category": "Roads",
+        "description": "Repair and widening of Sultanpur's main village road, including culvert fixes.",
+        "submission_count": 0, "population_affected": 980,
+        "priority_score": 34.9, "breakdown": { "citizen_demand": 0, "severity": 15, "population_impact": 12.1, "cost_feasibility": 7.8 }, "is_existing_plan_project": true },
+      { "id": "plan_007", "title": "ITI skill development centre - Sultanpur", "category": "Vocational",
+        "description": "ITI skill-development centre for Sultanpur to train local youth.",
+        "submission_count": 0, "population_affected": 300,
+        "priority_score": 23.7, "breakdown": { "citizen_demand": 0, "severity": 15, "population_impact": 3.7, "cost_feasibility": 5.0 }, "is_existing_plan_project": true }
+    ]},
+    { "name": "Rampur", "state": "Maharashtra", "lat": 21.051, "lng": 79.152, "projects": [
+      { "id": "plan_005", "title": "Community toilet complex - Rampur", "category": "Sanitation",
+        "description": "Community toilet complex for Rampur to improve sanitation coverage.",
+        "submission_count": 0, "population_affected": 420,
+        "priority_score": 29.29, "breakdown": { "citizen_demand": 0, "severity": 15, "population_impact": 5.19, "cost_feasibility": 9.1 }, "is_existing_plan_project": true },
+      { "id": "plan_001", "title": "Additional classroom block - Rampur Govt Primary School", "category": "Education",
+        "description": "Additional classroom block at Rampur Government Primary School.",
+        "submission_count": 0, "population_affected": 210,
+        "priority_score": 24.09, "breakdown": { "citizen_demand": 0, "severity": 15, "population_impact": 2.59, "cost_feasibility": 6.5 }, "is_existing_plan_project": true }
+    ]}
+  ]
+};
+
+// ── Map: whole of India on load (requirement 1), scroll + button zoom ────
+const INDIA_BOUNDS = L.latLngBounds([6.4, 68.0], [36.0, 97.5]);
+const map = L.map('map', {
+  zoomControl: true,
+  minZoom: 4.3,
+  maxBounds: INDIA_BOUNDS.pad(0.35),
+  closePopupOnClick: false,     // a stray click on the map must NOT close an open widget
+});
+map.fitBounds(INDIA_BOUNDS);
+
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+}).addTo(map);
+
+// ── State ────────────────────────────────────────────────────────────────
+let TOWNS = [];
+let SEV_MAX = 25;
+let lastSig = '';
+const activeCats = new Set();
+const markers = new Map();
+const popupState = { town: null, idx: 0, el: null };
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c =>
+  ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const fmt = (n) => (n || n === 0) ? Number(n).toLocaleString('en-IN') : '—';
+
+const store = {
+  get(k)    { try { return JSON.parse(localStorage.getItem(k) || '{}') } catch { return {} } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch { /* best effort */ } },
+};
+
+// ── Severity → colour: green → yellow → red (requirement 4) ──────────────
+function sevColor(sev) {
+  const t = Math.max(0, Math.min(1, sev / SEV_MAX));
+  const hue = 120 * (1 - t);
+  return `hsl(${hue}, ${72 + t * 8}%, ${44 - t * 2}%)`;
+}
+const townSeverity = (town, projects) => Math.max(...projects.map(p => p.breakdown?.severity ?? 0));
+
+// ── Data loading: live API → embedded fallback ───────────────────────────
+async function loadData() {
+  if (API_URL) {
+    try {
+      const r = await fetch(API_URL, { cache: 'no-store' });
+      if (r.ok) {
+        const j = await r.json();
+        if (j && Array.isArray(j.towns) && j.towns.length) { setSource('live'); return j; }
+      }
+    } catch (_) { /* backend not reachable — fall through */ }
+  }
+  setSource('demo');
+  return window.HEATMAP_DATA;
+}
+function setSource(kind) {
+  const tag = $('srcTag');
+  if (kind === 'live') { tag.textContent = '● Live data'; tag.className = 'src live'; }
+  else { tag.textContent = '● Sample data'; tag.className = 'src demo'; }
+}
+
+// ── Geocoding fallback (Nominatim — free OSM geocoder, 1 req/sec policy) ──
+async function geocodeMissing(towns) {
+  const missing = towns.filter(t => t.lat == null || t.lng == null);
+  if (!missing.length) return false;
+  const cache = store.get('geo_cache');
+  $('status').classList.add('show');
+  let changed = false;
+  for (const t of missing) {
+    const key = `${t.name}, ${t.state || ''}`;
+    if (cache[key]) { t.lat = cache[key][0]; t.lng = cache[key][1]; changed = true; continue; }
+    $('statusTxt').textContent = `Locating ${t.name}…`;
+    try {
+      const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&q='
+                + encodeURIComponent(key);
+      const res = await (await fetch(url)).json();
+      if (res[0]) {
+        t.lat = +res[0].lat; t.lng = +res[0].lon;
+        cache[key] = [t.lat, t.lng]; store.set('geo_cache', cache); changed = true;
+      }
+    } catch (e) { console.warn('Geocode failed for', key, e); }
+    await new Promise(r => setTimeout(r, 1100));
+  }
+  $('status').classList.remove('show');
+  return changed;
+}
+
+// ── Category filter chips ────────────────────────────────────────────────
+function buildChips() {
+  const cats = [...new Set(TOWNS.flatMap(t => t.projects.map(p => p.category)))].sort();
+  const box = $('chipBox');
+  box.innerHTML = '';
+  const all = document.createElement('span');
+  all.className = 'chip'; all.textContent = 'All';
+  all.onclick = () => { activeCats.clear(); syncChips(); renderMarkers(); };
+  box.appendChild(all);
+  for (const c of cats) {
+    const el = document.createElement('span');
+    el.className = 'chip'; el.dataset.cat = c; el.textContent = c;
+    el.onclick = () => { activeCats.has(c) ? activeCats.delete(c) : activeCats.add(c); syncChips(); renderMarkers(); };
+    box.appendChild(el);
+  }
+  syncChips();
+}
+function syncChips() {
+  document.querySelectorAll('#chipBox .chip').forEach(el => {
+    if (!el.dataset.cat) el.classList.toggle('on', activeCats.size === 0);
+    else el.classList.toggle('on', activeCats.has(el.dataset.cat));
+  });
+}
+const visibleProjects = (town) =>
+  activeCats.size === 0 ? town.projects : town.projects.filter(p => activeCats.has(p.category));
+
+// ── Markers: ONE per town (requirement 2), colour = worst severity ───────
+function renderMarkers() {
+  for (const m of markers.values()) map.removeLayer(m);
+  markers.clear();
+  for (const town of TOWNS) {
+    if (town.lat == null || town.lng == null) continue;
+    const projs = visibleProjects(town);
+    if (!projs.length) continue;
+    const color = sevColor(townSeverity(town, projs));
+    const size  = Math.min(46, 26 + projs.length * 4);
+    const icon = L.divIcon({
+      className: '', iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2], popupAnchor: [0, -size / 2 - 4],
+      html: `<div class="town-dot" style="background:${color}; --halo:${color.replace(')', ', .28)').replace('hsl', 'hsla')}"
+                  title="${esc(town.name)} — ${projs.length} project(s)">${projs.length}</div>`,
+    });
+    const marker = L.marker([town.lat, town.lng], { icon }).addTo(map);
+    marker.bindPopup('', { maxWidth: 340, minWidth: 300, closeButton: true, autoPan: true, autoPanPadding: [30, 30] });
+    marker.on('popupopen', () => {
+      popupState.town = town;
+      popupState.idx = 0;
+      const el = buildWidgetEl();
+      popupState.el = el;
+      marker.getPopup().setContent(el);
+    });
+    marker.on('popupclose', () => { if (popupState.town === town) popupState.el = null; });
+    markers.set(town.name, marker);
+  }
+}
+
+// ── Click widget: all clustered projects, one at a time (requirement 3) ──
+// The widget is a real DOM element; navigation mutates its innerHTML in place
+// (never setContent), so it never closes while browsing. Shows, per project:
+// summary/details, submissions in that cluster, affected population, score,
+// and the breakdown bars.
+function widgetInnerHTML() {
+  const town = popupState.town;
+  if (!town) return '';
+  const projs = visibleProjects(town);
+  if (!projs.length) {
+    return `<div class="pw"><div class="pw-body" style="padding:18px 16px;">
+              <div class="pw-desc">No projects match the selected categories for ${esc(town.name)}.</div>
+            </div></div>`;
+  }
+  const i = Math.max(0, Math.min(popupState.idx, projs.length - 1));
+  popupState.idx = i;
+  const p = projs[i];
+  const b = p.breakdown || {};
+  const sevC = sevColor(b.severity ?? 0);
+
+  const tabs = projs.map((pr, k) =>
+    `<span class="pw-tab ${k === i ? 'on' : ''}" data-goto="${k}" title="${esc(pr.title)}">${esc(pr.id)}</span>`
+  ).join('');
+
+  const bar = (label, val, cls) => {
+    const n = Number(val) || 0;
+    const w = Math.max(0, Math.min(100, n / SEV_MAX * 100));
+    const styleAttr = cls ? ` style="--sevcol:${sevC}"` : '';
+    return `<div class="pbar ${cls || ''}"${styleAttr}>
+      <div class="row"><span>${label}</span><b>${n}</b></div>
+      <div class="track"><div class="fill" style="width:${w}%"></div></div></div>`;
+  };
+
+  return `
+  <div class="pw">
+    <div class="pw-head">
+      <div><div class="town">${esc(town.name)}</div><div class="state">${esc(town.state || '')}</div></div>
+      <span class="pw-count">${projs.length} clustered project${projs.length > 1 ? 's' : ''}</span>
+    </div>
+    <div class="pw-tabs">${tabs}</div>
+    <div class="pw-body">
+      <div class="pw-title">${esc(p.title)}</div>
+      <div class="pw-meta">
+        <span class="badge id">${esc(p.id)}</span>
+        <span class="badge cat">${esc(p.category)}</span>
+      </div>
+      <div class="pw-desc">${esc(p.description || p.title)}</div>
+      <div class="pw-stats">
+        <div class="stat"><span>Submissions</span><b>${fmt(p.submission_count ?? 0)}</b></div>
+        <div class="stat"><span>Affected population</span><b>${fmt(p.population_affected)}</b></div>
+      </div>
+      ${p.explanation ? `<div class="pw-expl">${esc(p.explanation)}</div>` : ''}
+      <div class="pw-score"><span class="n">${esc(p.priority_score ?? '—')}</span><span class="l">PRIORITY SCORE</span></div>
+      ${bar('Severity', b.severity, 'sev')}
+      ${bar('Citizen demand', b.citizen_demand, '')}
+      ${bar('Population impact', b.population_impact, '')}
+      ${bar('Cost feasibility', b.cost_feasibility, '')}
+    </div>
+    <div class="pw-nav">
+      <button type="button" data-goto="${i - 1}" ${i === 0 ? 'disabled' : ''}>‹ Prev</button>
+      <span class="pg">Project ${i + 1} of ${projs.length}</span>
+      <button type="button" data-goto="${i + 1}" ${i === projs.length - 1 ? 'disabled' : ''}>Next ›</button>
+    </div>
+  </div>`;
+}
+
+function buildWidgetEl() {
+  const el = document.createElement('div');
+  el.className = 'pw-root';
+  el.innerHTML = widgetInnerHTML();
+  L.DomEvent.disableClickPropagation(el);
+  L.DomEvent.disableScrollPropagation(el);
+  el.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-goto]');
+    if (!btn || btn.hasAttribute('disabled')) return;
+    L.DomEvent.stop(e);
+    const k = parseInt(btn.getAttribute('data-goto'), 10);
+    if (!Number.isNaN(k)) gotoProject(k);
+  });
+  return el;
+}
+
+function gotoProject(k) {
+  const town = popupState.town;
+  if (!town || !popupState.el) return;
+  const projs = visibleProjects(town);
+  popupState.idx = Math.max(0, Math.min(k, projs.length - 1));
+  popupState.el.innerHTML = widgetInnerHTML();
+  const popup = markers.get(town.name) && markers.get(town.name).getPopup();
+  if (popup && popup.isOpen()) popup.update();
+}
+window.gotoProject = gotoProject;
+
+// ── Auto-refresh: keep the map in sync with new submissions ──────────────
+function anyPopupOpen() {
+  for (const m of markers.values()) if (m.isPopupOpen()) return true;
+  return false;
+}
+function signature(towns) {
+  return JSON.stringify(towns.map(t => [t.name, t.lat, t.lng,
+    t.projects.map(p => [p.id, p.priority_score, p.submission_count,
+                         p.population_affected, p.breakdown && p.breakdown.severity])]));
+}
+async function refreshData(force) {
+  // Don't disrupt a widget the user is actively reading (unless they asked).
+  if (!force && anyPopupOpen()) return;
+  const data = await loadData();
+  const towns = (data && data.towns) || [];
+  const sig = signature(towns);
+  if (!force && sig === lastSig) return;    // nothing changed since last poll
+  lastSig = sig;
+  TOWNS = towns;
+  const sevs = TOWNS.flatMap(t => t.projects.map(p => p.breakdown?.severity ?? 0));
+  SEV_MAX = Math.max(25, ...sevs);
+  buildChips();
+  renderMarkers();
+  const changed = await geocodeMissing(TOWNS);
+  if (changed) { lastSig = signature(TOWNS); renderMarkers(); }
+}
+
+// ── Header controls ──────────────────────────────────────────────────────
+function dataBounds() {
+  const pts = TOWNS.filter(t => t.lat != null && t.lng != null).map(t => [t.lat, t.lng]);
+  return pts.length ? L.latLngBounds(pts) : null;
+}
+$('fitIndia').onclick = () => map.fitBounds(INDIA_BOUNDS);
+$('fitData').onclick  = () => { const b = dataBounds(); if (b) map.fitBounds(b.pad(0.6), { maxZoom: 12 }); };
+$('refresh').onclick  = () => refreshData(true);
+
+// ── Boot ─────────────────────────────────────────────────────────────────
+(async function init() {
+  await refreshData(true);
+  setInterval(() => refreshData(false), REFRESH_MS);
+})();
+</script>
+</body>
+</html>

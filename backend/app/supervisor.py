@@ -60,6 +60,24 @@ def _strip_json(text: str) -> dict:
         raise
 
 
+def _as_int(v, default: int = 0) -> int:
+    """Best-effort int from LLM/tool output. Tolerates '1,450', '5000', ' 12 ',
+    floats, None and junk like 'unknown' (→ default) so numeric coercion of
+    model output can never raise inside a node."""
+    try:
+        return int(float(str(v).replace(",", "").strip()))
+    except (TypeError, ValueError):
+        return default
+
+
+def _as_float(v, default: float = 0.0) -> float:
+    """Best-effort float with the same tolerance as _as_int."""
+    try:
+        return float(str(v).replace(",", "").strip())
+    except (TypeError, ValueError):
+        return default
+
+
 def _scale_component(value, cap: float) -> float:
     """Normalise an LLM-returned score component.
 
@@ -141,13 +159,18 @@ def _build_fused_context(pi, cluster, location: str, info: dict,
     llm_data = llm_data or {}
     cluster_size = cluster.cluster_size if cluster else 1
 
-    gap = float(info.get("infrastructure_gap",
-                         llm_data.get("infrastructure_gap", 0.5)))
+    # LLMs return "gap" as a bare number OR occasionally as prose/"unknown".
+    # Coerce defensively so a stray non-numeric value can't crash this node
+    # (which used to silently discard ALL of the LLM's contribution).
+    gap = _as_float(info.get("infrastructure_gap"),
+                    _as_float(llm_data.get("infrastructure_gap"), 0.5))
     conf = info.get("data_confidence") or llm_data.get("data_confidence")
     if conf not in ("real_data", "estimated", "synthetic"):
         conf = "estimated"
-    population = (int(llm_data.get("population", 0) or 0)
-                  or int(info.get("population", 0) or 0)
+    # LLM population may arrive as "1,450", "5000", "unknown" or null — parse
+    # safely instead of int() which throws on any of the non-plain-int forms.
+    population = (_as_int(llm_data.get("population"))
+                  or _as_int(info.get("population"))
                   or _DEFAULT_WARD_POPULATION)
     extras = {k: v for k, v in {**info, **llm_data}.items()
               if isinstance(v, (int, float, str))}
