@@ -61,8 +61,8 @@ _EXTRA_ORIGINS = [o.strip() for o in os.getenv("FRONTEND_ORIGINS", "").split(","
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_DEV_ORIGINS + _EXTRA_ORIGINS,
-    # Allow any Vercel deployment (preview + production *.vercel.app URLs).
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    # Allow any Vercel or Netlify deployment (preview + production URLs).
+    allow_origin_regex=r"https://.*\.(vercel\.app|netlify\.app)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
