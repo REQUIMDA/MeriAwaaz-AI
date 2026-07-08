@@ -1,18 +1,9 @@
-# Netlify build config for the MeriAwaaz AI frontend (Next.js in ./frontend).
-# The backend is NOT deployed here — it runs on Render.
-
 [build]
-  # Monorepo: build the Next.js app that lives in frontend/. With `base` set,
-  # Netlify installs dependencies AND runs the command inside this folder, which
-  # is what prevents the "next: not found" error.
-  base = "frontend"
-  command = "npm install && npm run build"
+command = "npm install && npm run build"
 
 [build.environment]
-  NODE_VERSION = "20"
-  # Point the deployed frontend at the live backend on Render.
-  NEXT_PUBLIC_API_BASE = "https://meriawaaz-ai.onrender.com"
+NODE_VERSION = "20"
+NEXT_PUBLIC_API_BASE = "https://meriawaaz-ai.onrender.com"
 
-# Official Next.js runtime (handles SSR, the .next output, and routing).
 [[plugins]]
-  package = "@netlify/plugin-nextjs"
+package = "@netlify/plugin-nextjs"
