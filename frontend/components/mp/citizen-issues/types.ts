@@ -16,11 +16,15 @@ export type IssuePriority =
 
 export type IssueStatus =
   | "Open"
+  | "Assigned"
   | "In Progress"
   | "Resolved";
 
 export interface CitizenIssue {
   id: string;
+
+  // Stable backend id (full uuid) — used for assign/resolve tracking.
+  rawId?: string;
 
   title: string;
 
@@ -38,9 +42,17 @@ export interface CitizenIssue {
 
   status: IssueStatus;
 
+  assigned?: boolean;
+
   submittedAt: string;
 
   image?: string;
+
+  audioUrl?: string;
+
+  lat?: number | null;
+
+  lng?: number | null;
 
   aiSummary: string;
 

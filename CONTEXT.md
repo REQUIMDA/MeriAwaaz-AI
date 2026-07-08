@@ -10,6 +10,55 @@
 
 ---
 
+## 0b. Frontend integration (2026-07-08, session 3)
+
+The Next.js frontend (`frontend/`, Next 16 + React 19 + Tailwind 4 + zustand) is
+now wired to the backend end-to-end. See `RUN.md` for how to run both.
+
+- **API layer written** (`frontend/services/api.ts`, `frontend/types/api.ts`) —
+  base URL from `NEXT_PUBLIC_API_BASE` (default `http://localhost:8000`).
+- **Citizen submit is real** — the Review page calls `POST /api/submissions`
+  (multipart; channel inferred from attachments; description + location folded
+  into the message text). StepThree shows the citizen's own input; the Success
+  page shows the AI-matched project(s) + priority score from the response.
+- **MP Dashboard** is a live client component fed by `GET /api/dashboard`
+  (stat cards, top recommendations, priority feed, category distribution).
+- **MP Citizen Issues** is fed by the new `GET /api/submissions?limit=` list;
+  filters/sort are derived from live data. Backend categories are mapped to the
+  UI category union; priority is derived from the linked project's score.
+- **MP Heatmap** embeds the backend Leaflet map (`GET /heatmap`) in an iframe
+  inside the MP shell — the heatmap itself is unchanged. The old mock React
+  heatmap components and all `mockData.ts` files were removed. This also fixed a
+  pre-existing double-sidebar bug (the page rendered its own Sidebar on top of
+  the one from `app/mp/layout.tsx`).
+- **Backend additions for the frontend:** `GET /api/submissions` (list, enriched
+  with priority from STORE) and CORS widened to `localhost:3000` + `:5173`.
+
+Contract table and run steps are in `RUN.md`.
+
+**Session 4 additions:**
+- **Interactive location picker** (`frontend/components/common/LocationPicker.tsx`)
+  — Leaflet loaded from CDN (same tech as the heatmap, no npm dep). Used on the
+  citizen "Pin the location" step (click to drop/move a red pin, auto reverse-
+  geocode to the address box, remove-marker button; address is required) and,
+  read-only, in the MP issue drawer as a "Complaint Location" map.
+- **Location persistence** — submissions carry `lat`/`lng` (new columns; sent as
+  form fields; returned by `GET /api/submissions`).
+- **Resolve model** — `POST /api/submissions/resolve {ids:[...]}` marks
+  submissions resolved (new `resolved` column). `database.resolved_cluster_ids()`
+  returns clusters whose every feeding complaint is resolved; those are excluded
+  from `/api/dashboard`, `/api/recommendations`, and `/api/heatmap`, so a fully-
+  resolved cluster disappears from the map and the project count drops. The MP
+  Citizen Issues page has per-row Resolve and a "Resolve all shown" bulk button;
+  Assign stays a client-side (localStorage) marker.
+- **Branding/cleanup** — logo replaced everywhere with
+  `frontend/public/images/logo.svg` (a fist/speech-bubble mark; overwrite this
+  file with a PNG to use an exact asset); the citizen-side voice FAB was removed.
+- **Note:** the location picker needs internet at runtime (Leaflet CDN + OSM
+  tiles + Nominatim reverse geocoding), same as the heatmap.
+
+---
+
 ## 0. Recent changes (2026-07-08, session 2)
 
 - **Multi-topic submissions.** A submission that raises several problems (e.g.

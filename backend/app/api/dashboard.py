@@ -29,7 +29,8 @@ def get_dashboard() -> DashboardData:
     Return the full dashboard payload: ranked projects, heatmap, and stats.
     explanation is never included here.
     """
-    recs = STORE.all_recommendations_sorted()
+    resolved = database.resolved_cluster_ids()
+    recs = [r for r in STORE.all_recommendations_sorted() if r.project_id not in resolved]
 
     projects: list[ProjectCard] = []
     for rec in recs:

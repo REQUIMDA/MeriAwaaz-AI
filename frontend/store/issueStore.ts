@@ -1,18 +1,17 @@
 import { create } from "zustand";
+import type { SubmissionResponse } from "@/types/api";
 
-export interface SubmissionResponse {
-  status: string;
-  submission_id: string;
-  photo_url?: string | null;
-  audio_url?: string | null;
-  recommendation?: unknown;
-}
+export type { SubmissionResponse };
 
 interface IssueState {
   // Complaint Details
   category: string;
   description: string;
   location: string;
+
+  // Marked location (from the interactive map). Null when no pin is placed.
+  locationLat: number | null;
+  locationLng: number | null;
 
   // Attachments
   photo: File | null;
@@ -27,6 +26,7 @@ interface IssueState {
   setCategory: (category: string) => void;
   setDescription: (description: string) => void;
   setLocation: (location: string) => void;
+  setLocationCoords: (lat: number | null, lng: number | null) => void;
 
   setPhoto: (photo: File | null) => void;
   setAudio: (audio: File | null) => void;
@@ -44,6 +44,9 @@ export const useIssueStore = create<IssueState>((set) => ({
   description: "",
   location: "",
 
+  locationLat: null,
+  locationLng: null,
+
   photo: null,
   audio: null,
 
@@ -53,32 +56,30 @@ export const useIssueStore = create<IssueState>((set) => ({
 
   setCategory: (category: string) => set({ category }),
 
-  setDescription: (description: string) =>
-    set({ description }),
+  setDescription: (description: string) => set({ description }),
 
-  setLocation: (location: string) =>
-    set({ location }),
+  setLocation: (location: string) => set({ location }),
 
-  setPhoto: (photo: File | null) =>
-    set({ photo }),
+  setLocationCoords: (locationLat: number | null, locationLng: number | null) =>
+    set({ locationLat, locationLng }),
 
-  setAudio: (audio: File | null) =>
-    set({ audio }),
+  setPhoto: (photo: File | null) => set({ photo }),
 
-  setSubmissionId: (submissionId: string) =>
-    set({ submissionId }),
+  setAudio: (audio: File | null) => set({ audio }),
 
-  setStatus: (status: string) =>
-    set({ status }),
+  setSubmissionId: (submissionId: string) => set({ submissionId }),
 
-  setResponse: (response: SubmissionResponse | null) =>
-    set({ response }),
+  setStatus: (status: string) => set({ status }),
+
+  setResponse: (response: SubmissionResponse | null) => set({ response }),
 
   reset: () =>
     set({
       category: "",
       description: "",
       location: "",
+      locationLat: null,
+      locationLng: null,
 
       photo: null,
       audio: null,

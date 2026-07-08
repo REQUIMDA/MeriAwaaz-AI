@@ -141,10 +141,19 @@ def _run_pipeline_for_issue(sid: str, idx: int, issue_text: str):
 # Routes
 # ---------------------------------------------------------------------------
 
+def _as_float(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
 @router.post("/api/submissions")
 async def create_submission(
     channel: str = Form("text"),
     text: str = Form(""),
+    lat: Optional[str] = Form(None),
+    lng: Optional[str] = Form(None),
     photo: Optional[UploadFile] = File(None),
     audio: Optional[UploadFile] = File(None),
 ):
@@ -213,6 +222,8 @@ async def create_submission(
 
     # ── Persist: one submissions row per topic; index each in ChromaDB ──────
     now = datetime.utcnow().isoformat()
+    lat_val = _as_float(lat)
+    lng_val = _as_float(lng)
     if processed:
         for i, (row_id, issue_text, pi, rec) in enumerate(processed):
             first = (i == 0)
@@ -231,6 +242,8 @@ async def create_submission(
                 "photo_url": photo_url if first else None,
                 "video_url": None,
                 "audio_url": audio_url if first else None,
+                "lat": lat_val,
+                "lng": lng_val,
             })
             # Index each topic separately so future submissions cluster per-topic.
             try:
@@ -255,6 +268,7 @@ async def create_submission(
             "raw_text": base_text or text or "", "category": None, "location": None,
             "summary": None, "confidence": None, "language": None, "cluster_id": None,
             "photo_url": photo_url, "video_url": None, "audio_url": audio_url,
+            "lat": lat_val, "lng": lng_val,
         })
 
     primary = recommendations[0] if recommendations else None
@@ -269,6 +283,58 @@ async def create_submission(
         "recommendation": primary.model_dump() if primary else None,
         "recommendations": [r.model_dump() for r in recommendations],
     }
+
+
+@router.get("/api/submissions")
+def list_submissions(limit: int = 100, offset: int = 0):
+    """Recent citizen submissions (newest first) for the MP 'Citizen Issues' view.
+
+    Each row is enriched with the priority_score of the project/cluster it fed
+    (looked up from STORE), so the frontend can show a real priority band.
+    """
+    rows = database.list_submissions(limit=limit, offset=offset)
+    items = []
+    for r in rows:
+        score = None
+        cid = r.get("cluster_id")
+        if cid:
+            rec = STORE.get_recommendation(cid)
+            if rec is None:
+                dbrec = database.get_recommendation(cid)
+                score = dbrec["priority_score"] if dbrec else None
+            else:
+                score = rec.priority_score
+        items.append({
+            "id": r["id"],
+            "created_at": r["created_at"],
+            "input_type": r["input_type"],
+            "category": r.get("category"),
+            "location": r.get("location"),
+            "summary": r.get("summary"),
+            "raw_text": r.get("raw_text"),
+            "cluster_id": cid,
+            "priority_score": score,
+            "photo_url": r.get("photo_url"),
+            "audio_url": r.get("audio_url"),
+            "video_url": r.get("video_url"),
+            "lat": r.get("lat"),
+            "lng": r.get("lng"),
+            "resolved": bool(r.get("resolved")),
+        })
+    return {"items": items, "total": database.count_all_submissions()}
+
+
+class ResolveRequest(BaseModel):
+    ids: list[str]
+
+
+@router.post("/api/submissions/resolve")
+def resolve_submissions(req: ResolveRequest):
+    """Mark submissions resolved. When every submission feeding a project is
+    resolved, that project/cluster drops out of the dashboard, recommendations
+    and heatmap automatically."""
+    n = database.mark_submissions_resolved(req.ids)
+    return {"resolved": n}
 
 
 @router.get("/api/submissions/{submission_id}", response_model=SubmissionResponse)

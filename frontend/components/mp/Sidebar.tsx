@@ -35,9 +35,10 @@ export default function Sidebar() {
 
       <div className="flex items-center gap-4 p-8">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbT41SeAXjoqUs3J1GbOPFwpPmc6o2cQfgvvmgkJzuIWqYC3-Fz2T8yNxwsZ3Htpzha3hzzw2BYwEKqrfLOCP48JISx2Uhavc71lH58qRB2k4J9pklLesYOvn5N_njlDUUQ5YTA9sDOrIvacR8o9fVWj4GePjT7Fzig4J4yDK8DQ7jy-sT1Hgg-qdnmt4HaKz2yLaArqbuBi7IC5dP3nrIZUDteIdl_NkXezBCMs26dvbIf9UEZMA"
-            alt="Government of India"
+            src="/images/logo.svg"
+            alt="MeriAwaaz AI"
             className="h-8 w-8 object-contain"
           />
         </div>

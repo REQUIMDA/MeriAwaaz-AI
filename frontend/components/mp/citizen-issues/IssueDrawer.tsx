@@ -1,6 +1,7 @@
 "use client";
 
 import type { CitizenIssue } from "./types";
+import LocationPicker from "@/components/common/LocationPicker";
 
 interface IssueDrawerProps {
   issue: CitizenIssue | null;
@@ -115,25 +116,54 @@ export default function IssueDrawer({
               </p>
             </div>
 
-            {/* Image */}
+            {/* Attached Image — only when the submission actually has one */}
 
-            <div className="glass-card rounded-[24px] p-6">
-              <h3 className="mb-4 text-lg font-bold text-black">
-                Attached Image
-              </h3>
+            {issue.image ? (
+              <div className="glass-card rounded-[24px] p-6">
+                <h3 className="mb-4 text-lg font-bold text-black">
+                  Attached Image
+                </h3>
 
-              <div className="flex h-56 items-center justify-center rounded-2xl border-2 border-dashed border-[#C3C7CC] bg-[#ECEEF1]">
-                <div className="text-center">
-                  <span className="material-symbols-outlined text-5xl text-[#74777C]">
-                    image
-                  </span>
-
-                  <p className="mt-2 text-sm text-[#43474B]">
-                    Image preview will appear here
-                  </p>
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={issue.image}
+                  alt="Citizen-attached photo"
+                  className="max-h-96 w-full rounded-2xl bg-[#ECEEF1] object-contain"
+                />
               </div>
-            </div>
+            ) : null}
+
+            {/* Attached Voice Note — only when present */}
+
+            {issue.audioUrl ? (
+              <div className="glass-card rounded-[24px] p-6">
+                <h3 className="mb-4 text-lg font-bold text-black">
+                  Voice Note
+                </h3>
+
+                <audio controls src={issue.audioUrl} className="w-full">
+                  Your browser does not support audio playback.
+                </audio>
+              </div>
+            ) : null}
+
+            {/* Complaint Location — only when the citizen dropped a pin */}
+
+            {issue.lat != null && issue.lng != null ? (
+              <div className="glass-card rounded-[24px] p-6">
+                <h3 className="mb-4 text-lg font-bold text-black">
+                  Complaint Location
+                </h3>
+
+                <LocationPicker
+                  interactive={false}
+                  showRemove={false}
+                  initialLat={issue.lat}
+                  initialLng={issue.lng}
+                  height="16rem"
+                />
+              </div>
+            ) : null}
 
             {/* AI Summary */}
 

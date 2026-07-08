@@ -4,7 +4,6 @@ import Stats from "@/components/citizen/Stats";
 import HowItWorks from "@/components/citizen/HowItWorks";
 import Privacy from "@/components/citizen/Privacy";
 import Footer from "@/components/citizen/Footer";
-import VoiceFAB from "@/components/citizen/VoiceFAB";
 import BottomNav from "@/components/citizen/BottomNav";
 
 export default function CitizenHome() {
@@ -20,7 +19,6 @@ export default function CitizenHome() {
         <Footer />
       </main>
 
-      <VoiceFAB />
       <BottomNav />
     </>
   );

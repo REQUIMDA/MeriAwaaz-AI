@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Landmark,
   Bell,
   UserCircle,
   LogOut,
@@ -59,9 +58,11 @@ export default function Navbar() {
           href="/citizen/dashboard"
           className="flex items-center gap-3"
         >
-          <Landmark
-            size={28}
-            className="text-black"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/logo.svg"
+            alt="MeriAwaaz AI"
+            className="h-7 w-7"
           />
 
           <span className="text-xl font-semibold tracking-tight">

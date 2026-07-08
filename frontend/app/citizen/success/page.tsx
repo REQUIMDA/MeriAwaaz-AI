@@ -13,8 +13,15 @@ export default function SuccessPage() {
   const {
     submissionId,
     status,
+    response,
     reset,
   } = useIssueStore();
+
+  const recs = response?.recommendations?.length
+    ? response.recommendations
+    : response?.recommendation
+    ? [response.recommendation]
+    : [];
 
   function handleReturnHome() {
     reset();
@@ -82,6 +89,49 @@ export default function SuccessPage() {
             </div>
 
           </div>
+
+          {/* AI recommendations produced by the pipeline */}
+
+          {recs.length > 0 && (
+            <div className="mb-10 w-full rounded-3xl border border-[#e6edf3] bg-white p-8 text-left shadow-sm">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#FFB703]">
+                AI Analysis
+              </p>
+              <p className="mb-6 text-sm text-[#43474b]">
+                Your report was matched to {recs.length} development{" "}
+                {recs.length === 1 ? "project" : "projects"}:
+              </p>
+
+              <div className="space-y-4">
+                {recs.map((r) => (
+                  <div
+                    key={r.project_id}
+                    className="flex items-center justify-between gap-4 rounded-2xl bg-[#f7f9fc] p-5"
+                  >
+                    <div>
+                      <h3 className="text-base font-bold text-black">
+                        {r.title}
+                      </h3>
+                      {r.explanation?.summary ? (
+                        <p className="mt-1 text-sm text-[#43474b]">
+                          {r.explanation.summary}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div className="flex min-w-[70px] flex-col items-center rounded-xl border border-[#e6edf3] bg-white p-2">
+                      <span className="text-[10px] uppercase text-[#43474b]">
+                        Priority
+                      </span>
+                      <span className="text-xl font-black text-black">
+                        {Math.round(r.priority_score)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Buttons */}
 

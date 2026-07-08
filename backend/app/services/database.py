@@ -75,6 +75,9 @@ def init_db() -> None:
         "ALTER TABLE submissions ADD COLUMN photo_url TEXT",
         "ALTER TABLE submissions ADD COLUMN video_url TEXT",
         "ALTER TABLE submissions ADD COLUMN audio_url TEXT",
+        "ALTER TABLE submissions ADD COLUMN lat REAL",
+        "ALTER TABLE submissions ADD COLUMN lng REAL",
+        "ALTER TABLE submissions ADD COLUMN resolved INTEGER DEFAULT 0",
         "ALTER TABLE agent_log ADD COLUMN detail TEXT",
     ]:
         try:
@@ -87,12 +90,13 @@ def init_db() -> None:
 
 def insert_submission(sub: dict) -> None:
     conn = _connect()
+    sub = {"lat": None, "lng": None, **sub}   # lat/lng optional for older callers
     conn.execute("""
         INSERT OR IGNORE INTO submissions
         (id, created_at, input_type, raw_text, category, location, summary,
-         confidence, language, cluster_id, photo_url, video_url, audio_url)
+         confidence, language, cluster_id, photo_url, video_url, audio_url, lat, lng)
         VALUES (:id, :created_at, :input_type, :raw_text, :category, :location, :summary,
-                :confidence, :language, :cluster_id, :photo_url, :video_url, :audio_url)
+                :confidence, :language, :cluster_id, :photo_url, :video_url, :audio_url, :lat, :lng)
     """, sub)
     conn.commit()
     conn.close()
@@ -166,6 +170,56 @@ def get_all_recommendations() -> list[dict]:
     ).fetchall()
     conn.close()
     return [dict(r) for r in rows]
+
+
+def list_submissions(limit: int = 100, offset: int = 0) -> list[dict]:
+    """Recent submissions, newest first — powers the MP 'Citizen Issues' list."""
+    conn = _connect()
+    rows = conn.execute("""
+        SELECT id, created_at, input_type, raw_text, category, location, summary,
+               confidence, language, cluster_id, photo_url, video_url, audio_url,
+               lat, lng, COALESCE(resolved, 0) AS resolved
+        FROM submissions
+        ORDER BY created_at DESC
+        LIMIT ? OFFSET ?
+    """, (limit, offset)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def mark_submissions_resolved(ids: list[str]) -> int:
+    """Mark one or more submissions resolved. Returns rows affected."""
+    ids = [i for i in ids if i]
+    if not ids:
+        return 0
+    conn = _connect()
+    placeholders = ",".join("?" for _ in ids)
+    cur = conn.execute(
+        f"UPDATE submissions SET resolved = 1 WHERE id IN ({placeholders})", ids
+    )
+    conn.commit()
+    conn.close()
+    return cur.rowcount
+
+
+def resolved_cluster_ids() -> set[str]:
+    """cluster_ids (project_ids) whose feeding submissions are ALL resolved.
+
+    A project with no citizen submissions (e.g. a seed plan) never appears here,
+    so plan projects are not hidden. Used to drop fully-resolved clusters from
+    the dashboard, recommendations, and heatmap.
+    """
+    conn = _connect()
+    rows = conn.execute("""
+        SELECT cluster_id,
+               COUNT(*) AS total,
+               SUM(COALESCE(resolved, 0)) AS res
+        FROM submissions
+        WHERE cluster_id IS NOT NULL AND cluster_id != ''
+        GROUP BY cluster_id
+    """).fetchall()
+    conn.close()
+    return {r["cluster_id"] for r in rows if r["total"] > 0 and r["res"] == r["total"]}
 
 
 def count_submissions_by_ward() -> list[dict]:

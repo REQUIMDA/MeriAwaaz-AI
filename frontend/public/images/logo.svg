@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="MeriAwaaz AI">
+  <g fill="#111111">
+    <!-- four fingers: two short (left), two tall (right) -->
+    <rect x="42"  y="28" width="24" height="40" rx="10"/>
+    <rect x="70"  y="28" width="25" height="40" rx="10"/>
+    <rect x="101" y="28" width="25" height="72" rx="10"/>
+    <rect x="135" y="28" width="25" height="72" rx="10"/>
+
+    <!-- knuckle bar (folded fingers) under the two short fingers -->
+    <rect x="42" y="76" width="53" height="24" rx="12"/>
+
+    <!-- palm forming a speech bubble: top V-notch + downward tail -->
+    <path d="M52 110
+             L108 110 L117 122 L126 110
+             L150 110
+             A10 10 0 0 1 160 120
+             L160 155
+             A10 10 0 0 1 150 165
+             L138 165 L126 188 L114 165
+             L52 165
+             A10 10 0 0 1 42 155
+             L42 120
+             A10 10 0 0 1 52 110 Z"/>
+  </g>
+</svg>

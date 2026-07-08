@@ -1,97 +1,49 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
-import Sidebar from "@/components/mp/Sidebar";
-import VoiceFAB from "@/components/mp/VoiceFAB";
-
-import HeatmapHeader from "@/components/mp/heatmap/HeatmapHeader";
-import FilterSidebar from "@/components/mp/heatmap/FilterSidebar";
-import MapCanvas from "@/components/mp/heatmap/MapCanvas";
-import MapControls from "@/components/mp/heatmap/MapControls";
-import HeatmapLegend from "@/components/mp/heatmap/HeatmapLegend";
-import DrilldownPanel from "@/components/mp/heatmap/DrilldownPanel";
-
-import { hotspots } from "@/components/mp/heatmap/mockData";
-import {
-  HeatmapFilterState,
-  Hotspot,
-} from "@/components/mp/heatmap/types";
+/**
+ * MP Constituency Heatmap.
+ *
+ * The interactive map is the self-contained Leaflet + OpenStreetMap page served
+ * by the backend at `${API_BASE}/heatmap`. It reads live data from
+ * `GET /api/heatmap` (same-origin inside the iframe, so no CORS needed) and
+ * auto-refreshes as new submissions arrive. We embed it here so it lives inside
+ * the MP portal shell (the sidebar comes from app/mp/layout.tsx).
+ */
+import { HEATMAP_URL } from "@/services/api";
 
 export default function HeatmapPage() {
-  const [selectedHotspot, setSelectedHotspot] =
-    useState<Hotspot | null>(hotspots[0]);
-
-  const [filters, setFilters] =
-    useState<HeatmapFilterState>({
-      categories: [
-        "Water Supply",
-        "Road Quality",
-        "Public Lighting",
-        "Waste Management",
-      ],
-      ward: "All Wards",
-      timeRange: "30days",
-      severity: "all",
-    });
-
-  const filteredHotspots = useMemo(() => {
-    return hotspots.filter((hotspot) => {
-      const wardMatch =
-        filters.ward === "All Wards" ||
-        hotspot.ward === filters.ward;
-
-      const severityMatch =
-        filters.severity === "all"
-          ? true
-          : hotspot.severity === filters.severity;
-
-      const categoryMatch =
-        filters.categories.includes(
-          hotspot.dominantCategory
-        );
-
-      return wardMatch && severityMatch && categoryMatch;
-    });
-  }, [filters]);
-
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-100">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main */}
-      <main className="relative ml-[280px] flex flex-1 flex-col">
-        <HeatmapHeader />
-
-        <div className="relative flex-1 overflow-hidden">
-          <MapCanvas
-            hotspots={filteredHotspots}
-            selectedHotspot={selectedHotspot}
-            onSelectHotspot={setSelectedHotspot}
-          />
-
-          <FilterSidebar
-            filters={filters}
-            onFiltersChange={setFilters}
-          />
-
-          <MapControls
-            onZoomIn={() => {}}
-            onZoomOut={() => {}}
-            onToggleLayers={() => {}}
-          />
-
-          <HeatmapLegend />
-
-          <DrilldownPanel
-            hotspot={selectedHotspot}
-            onClose={() => setSelectedHotspot(null)}
-          />
+    <div className="flex flex-col gap-6">
+      <header className="flex items-end justify-between">
+        <div>
+          <h1 className="text-[32px] font-bold leading-10 tracking-[-0.01em] text-black">
+            Constituency Heatmap
+          </h1>
+          <p className="mt-1 text-sm text-[#43474B]">
+            One marker per town — click a marker to browse its clustered projects.
+            Colour reflects severity; the map syncs with new submissions.
+          </p>
         </div>
-      </main>
 
-      <VoiceFAB />
+        <a
+          href={HEATMAP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex h-11 items-center gap-2 rounded-full bg-black px-5 text-sm font-bold text-white transition hover:opacity-90"
+        >
+          <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+          Open full screen
+        </a>
+      </header>
+
+      <div className="overflow-hidden rounded-[24px] border border-[#e6edf3] bg-white shadow-sm">
+        <iframe
+          src={HEATMAP_URL}
+          title="Constituency Heatmap"
+          className="w-full"
+          style={{ height: "82vh", border: "0" }}
+        />
+      </div>
     </div>
   );
 }

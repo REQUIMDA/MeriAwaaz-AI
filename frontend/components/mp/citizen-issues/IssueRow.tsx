@@ -24,8 +24,9 @@ export default function IssueRow({
 
   const statusColor = {
     Open: "bg-[#FFDAD6] text-[#BA1A1A]",
+    Assigned: "bg-[#D5E3FF] text-[#455F87]",
     "In Progress": "bg-[#FFDEA9] text-[#AD7B00]",
-    Resolved: "bg-[#D5E3FF] text-[#455F87]",
+    Resolved: "bg-[#DCEFE1] text-[#1C7C33]",
   };
 
   const categoryDot = {
@@ -111,10 +112,11 @@ export default function IssueRow({
           </button>
 
           <button
+            disabled={issue.assigned || issue.status === "Resolved"}
             onClick={() => onAssign(issue)}
-            className="rounded-xl bg-[#D5E3FF] px-3 py-2 text-sm font-bold text-[#455F87] transition-all hover:bg-[#455F87] hover:text-white"
+            className="rounded-xl bg-[#D5E3FF] px-3 py-2 text-sm font-bold text-[#455F87] transition-all hover:bg-[#455F87] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Assign
+            {issue.assigned ? "Assigned" : "Assign"}
           </button>
 
           <button

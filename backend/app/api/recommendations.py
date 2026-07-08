@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from app.schemas.models import Recommendation
 from app.services.store import STORE
+from app.services import database
 
 router = APIRouter()
 
@@ -25,5 +26,6 @@ def get_recommendations() -> RecommendationsResponse:
     Return all recommendations from the in-memory store, sorted by
     priority_score descending. explanation is always null here.
     """
-    recs = STORE.all_recommendations_sorted()
+    resolved = database.resolved_cluster_ids()
+    recs = [r for r in STORE.all_recommendations_sorted() if r.project_id not in resolved]
     return RecommendationsResponse(items=recs)

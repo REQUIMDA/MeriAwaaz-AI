@@ -5,7 +5,6 @@ import PrivacySection from "@/components/citizen/about/PrivacySection";
 import FAQ from "@/components/citizen/about/FAQ";
 import ContactFooter from "@/components/citizen/about/ContactFooter";
 import BottomNav from "@/components/citizen/BottomNav";
-import VoiceFAB from "@/components/citizen/VoiceFAB";
 
 export default function AboutPage() {
   return (
@@ -20,7 +19,6 @@ export default function AboutPage() {
         <ContactFooter />
       </main>
 
-      <VoiceFAB />
       <BottomNav />
     </>
   );

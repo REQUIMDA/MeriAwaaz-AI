@@ -5,39 +5,62 @@ import { useRouter } from "next/navigation";
 
 import Navbar from "@/components/citizen/Navbar";
 import BottomNav from "@/components/citizen/BottomNav";
-import VoiceFAB from "@/components/citizen/VoiceFAB";
 
 import IssueProgress from "@/components/citizen/IssueProgress";
 import StepThree from "@/components/citizen/StepThree";
 
 import { useIssueStore } from "@/store/issueStore";
+import { submitIssue } from "@/services/api";
 
 export default function ReviewPage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
 
-  const { setSubmissionId, setStatus } = useIssueStore();
+  const {
+    category,
+    description,
+    location,
+    locationLat,
+    locationLng,
+    photo,
+    audio,
+    setSubmissionId,
+    setStatus,
+    setResponse,
+  } = useIssueStore();
 
   async function handleSubmit() {
     try {
       setLoading(true);
 
-      // Simulate network delay
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      // Real submission → runs the backend AI pipeline.
+      const res = await submitIssue({
+        text: description,
+        category,
+        location,
+        lat: locationLat,
+        lng: locationLng,
+        photo,
+        audio,
+      });
 
-      // Generate a local complaint ID
-      const complaintId = `MA-${new Date().getFullYear()}-${Math.floor(
-        100000 + Math.random() * 900000
-      )}`;
-
-      setSubmissionId(complaintId);
-      setStatus("Submitted");
+      setSubmissionId(res.submission_id);
+      setStatus(
+        res.status === "processed"
+          ? "Processed by AI"
+          : res.status === "degraded"
+          ? "Received (AI degraded)"
+          : "Received"
+      );
+      setResponse(res);
 
       router.push("/citizen/success");
     } catch (err) {
       console.error(err);
-      alert("Unable to submit issue.");
+      alert(
+        "Unable to submit issue. Please make sure the backend is running, then try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -75,7 +98,6 @@ export default function ReviewPage() {
         </div>
       </main>
 
-      <VoiceFAB />
       <BottomNav />
     </>
   );

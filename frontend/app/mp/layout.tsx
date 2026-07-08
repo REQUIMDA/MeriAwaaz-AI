@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 
 import Sidebar from "@/components/mp/Sidebar";
-import VoiceFAB from "@/components/mp/VoiceFAB";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -19,8 +18,6 @@ export default function DashboardLayout({
           {children}
         </div>
       </main>
-
-      <VoiceFAB />
     </>
   );
 }

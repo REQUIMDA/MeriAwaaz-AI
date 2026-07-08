@@ -47,6 +47,7 @@ from pydantic import BaseModel
 
 from app.config import CONSTITUENCY
 from app.services.store import STORE
+from app.services import database
 
 router = APIRouter()
 
@@ -143,7 +144,12 @@ def get_heatmap() -> HeatmapData:
     # location key -> {"name", "projects": [...]}
     grouped: dict[str, dict] = {}
 
+    # Clusters whose every feeding complaint is resolved drop off the map.
+    resolved = database.resolved_cluster_ids()
+
     for rec in STORE.all_recommendations_sorted():          # already sorted desc
+        if rec.project_id in resolved:
+            continue
         ctx = STORE.get_context(rec.project_id)
         category = ctx.category if ctx is not None else "Other"
         location = (ctx.location if ctx is not None else "") or "unspecified"
